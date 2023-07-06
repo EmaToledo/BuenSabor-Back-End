@@ -15,6 +15,11 @@ public abstract class GenericControllerImpl<Entity extends GenericEntity, Dto ex
     protected GenericService<Entity, Dto, Long> service;
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
+    /**
+     * Obtiene todos los registros de la entidad.
+     *
+     * @return ResponseEntity con la lista de entidades en el cuerpo de la respuesta.
+     */
     @Override
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
@@ -25,6 +30,12 @@ public abstract class GenericControllerImpl<Entity extends GenericEntity, Dto ex
         }
     }
 
+    /**
+     * Obtiene un registro de la entidad por su ID.
+     *
+     * @param id ID del registro a buscar.
+     * @return ResponseEntity con la entidad encontrada en el cuerpo de la respuesta.
+     */
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneById(@PathVariable Long id) {
@@ -35,6 +46,12 @@ public abstract class GenericControllerImpl<Entity extends GenericEntity, Dto ex
         }
     }
 
+    /**
+     * Guarda un nuevo registro de la entidad.
+     *
+     * @param dto DTO con los datos del nuevo registro.
+     * @return ResponseEntity con el registro guardado en el cuerpo de la respuesta.
+     */
     @Override
     @PostMapping("/save")
     public ResponseEntity<?> save(Dto dto) {
@@ -45,6 +62,13 @@ public abstract class GenericControllerImpl<Entity extends GenericEntity, Dto ex
         }
     }
 
+    /**
+     * Actualiza un registro de la entidad por su ID.
+     *
+     * @param id  ID del registro a actualizar.
+     * @param dto DTO con los nuevos datos del registro.
+     * @return ResponseEntity con el registro actualizado en el cuerpo de la respuesta.
+     */
     @Override
     @PutMapping("/{id}/update")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Dto dto) {
@@ -55,6 +79,12 @@ public abstract class GenericControllerImpl<Entity extends GenericEntity, Dto ex
         }
     }
 
+    /**
+     * Elimina un registro de la entidad por su ID.
+     *
+     * @param id ID del registro a eliminar.
+     * @return ResponseEntity sin contenido en el cuerpo de la respuesta.
+     */
     @DeleteMapping("/{id}/delete")
     @Override
     public ResponseEntity<?> delete(@PathVariable Long id) {

@@ -6,13 +6,9 @@ import lombok.Data;
 public class CategoryDTO extends GenericDTO {
 
     private String denomination;
-
-    private Boolean type;
-
+    private Character type;
     private Boolean availability;
-
     private Long categoryFatherId;
-
     private String categoryFatherDenomination;
 
 }

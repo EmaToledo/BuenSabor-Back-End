@@ -18,11 +18,12 @@ import java.util.List;
 @AllArgsConstructor
 @AttributeOverride(name = "id", column = @Column(name = "id_category"))
 public class Category extends GenericEntity {
+
     @Column(name = "denomination")
     private String denomination;
 
     @Column(name = "type")
-    private Boolean type;
+    private Character type;
 
     @Column(name = "availability")
     private Boolean availability;
@@ -35,4 +36,5 @@ public class Category extends GenericEntity {
     @OneToMany(mappedBy = "fatherCategory", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Category> childCategories;
+
 }
