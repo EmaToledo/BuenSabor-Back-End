@@ -1,20 +1,18 @@
 package com.example.api.dtos;
 
 import lombok.Data;
-
-import java.sql.Time;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class ProductDTO extends GenericDTO {
 
     private String denomination;
-
     private String description;
-
-    private Time cooking_time;
-
     private Boolean availability;
-
+    private Long minStock;
+    private Long actualStock;
+    private String urlImage;
     private Long productCategoryID;
 
 }

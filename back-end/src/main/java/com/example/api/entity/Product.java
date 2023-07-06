@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Time;
-
 @Entity
 @Table(name = "product")
 @Getter
@@ -17,18 +15,24 @@ import java.sql.Time;
 @AllArgsConstructor
 @AttributeOverride(name = "id", column = @Column(name = "id_product"))
 public class Product extends GenericEntity {
-    
+
     @Column(name = "denomination")
     private String denomination;
 
     @Column(name = "description")
     private String description;
 
-    @Column(name = "cooking_time", columnDefinition = "TIME")
-    private Time cooking_time;
-
     @Column(name = "availability")
     private Boolean availability;
+
+    @Column(name = "min_stock")
+    private Long minStock;
+
+    @Column(name = "actual_stock")
+    private Long actualStock;
+
+    @Column(name = "url_image")
+    private String urlImage;
 
     @ManyToOne
     @JoinColumn(name = "id_category")

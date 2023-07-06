@@ -16,11 +16,23 @@ public abstract class GenericServiceImpl<Entity extends GenericEntity, Dto exten
     protected IGenericRepository<Entity, ID> IGenericRepository;
     protected GenericMapper<Entity, Dto> genericMapper;
 
+    /**
+     * Constructor de la clase.
+     *
+     * @param IGenericRepository Repositorio genérico utilizado para acceder a los datos de la entidad.
+     * @param genericMapper      Mapeador genérico utilizado para convertir entre la entidad y el DTO.
+     */
     public GenericServiceImpl(IGenericRepository<Entity, ID> IGenericRepository, GenericMapper<Entity, Dto> genericMapper) {
         this.IGenericRepository = IGenericRepository;
         this.genericMapper = genericMapper;
     }
 
+    /**
+     * Recupera todas las entidades.
+     *
+     * @return Lista de DTOs que representan las entidades.
+     * @throws Exception si ocurre algún error durante la operación.
+     */
     @Override
     public List<Dto> findAll() throws Exception {
         try {
@@ -31,6 +43,13 @@ public abstract class GenericServiceImpl<Entity extends GenericEntity, Dto exten
         }
     }
 
+    /**
+     * Busca una entidad por su ID.
+     *
+     * @param id ID de la entidad a buscar.
+     * @return DTO que representa la entidad encontrada.
+     * @throws Exception si no se encuentra la entidad o si ocurre algún error durante la operación.
+     */
     @Override
     public Dto findById(ID id) throws Exception {
         try {
@@ -41,6 +60,13 @@ public abstract class GenericServiceImpl<Entity extends GenericEntity, Dto exten
         }
     }
 
+    /**
+     * Guarda una entidad.
+     *
+     * @param dto DTO que representa la entidad a guardar.
+     * @return Entidad guardada.
+     * @throws Exception si ocurre algún error durante la operación.
+     */
     @Override
     @Transactional
     public Entity save(Dto dto) throws Exception {
@@ -51,6 +77,14 @@ public abstract class GenericServiceImpl<Entity extends GenericEntity, Dto exten
         }
     }
 
+    /**
+     * Actualiza una entidad.
+     *
+     * @param id  ID de la entidad a actualizar.
+     * @param dto DTO que contiene los datos actualizados de la entidad.
+     * @return Entidad actualizada.
+     * @throws Exception si no se encuentra la entidad a actualizar o si ocurre algún error durante la operación.
+     */
     @Override
     @Transactional
     public Entity update(ID id, Dto dto) throws Exception {
@@ -66,6 +100,12 @@ public abstract class GenericServiceImpl<Entity extends GenericEntity, Dto exten
         }
     }
 
+    /**
+     * Elimina una entidad por su ID.
+     *
+     * @param id ID de la entidad a eliminar.
+     * @throws Exception si no se encuentra la entidad a eliminar o si ocurre algún error durante la operación.
+     */
     @Override
     @Transactional
     public void delete(ID id) throws Exception {
