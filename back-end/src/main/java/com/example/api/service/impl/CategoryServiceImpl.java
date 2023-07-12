@@ -115,7 +115,7 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     }
 
     /**
-     * Bloquea una categoría y todas sus subcategorías.
+     * Bloquea una categoría.
      *
      * @param id ID de la categoría a bloquear
      * @return La categoría bloqueada
@@ -131,17 +131,27 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
             category.setAvailability(false);
             category = categoryRepository.save(category);
 
-            List<CategoryDTO> childCategories = findUnlockedCategoriesByTypeExceptId(id);
-
-            if (!childCategories.isEmpty()) {
-                for (CategoryDTO childCategory : childCategories) {
-                    blockCategory(childCategory.getId());
-                }
-            }
+            List<Category> childCategories = categoryRepository.findByParentCategoryId(id);
+            blockChildCategories(childCategories);
 
             return category;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Bloquea todas las categorías hijas de forma recursiva.
+     *
+     * @param categories Lista de categorías.
+     */
+    private void blockChildCategories(List<Category> categories) {
+        for (Category childCategory : categories) {
+            childCategory.setAvailability(false);
+            categoryRepository.save(childCategory);
+
+            List<Category> grandchildren = categoryRepository.findByParentCategoryId(childCategory.getId());
+            blockChildCategories(grandchildren);
         }
     }
 
@@ -225,7 +235,7 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     public List<CategoryDTO> findUnlockedCategoriesByTypeExceptId(Long id) throws Exception {
         Optional<Category> categoryFilter = categoryRepository.findById(id);
 
-        if (categoryFilter.isEmpty()) {
+        if (!categoryFilter.isPresent()) {
             throw new Exception("Category not found");
         }
 
