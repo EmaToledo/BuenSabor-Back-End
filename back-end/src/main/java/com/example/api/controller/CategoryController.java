@@ -75,13 +75,13 @@ public class CategoryController extends GenericControllerImpl<Category, Category
 
     /**
      * Desbloquea una categoría.
-     * URL: http://localhost:4000/api/categories/unblock/{id}
+     * URL: http://localhost:4000/api/categories/unlock/{id}
      *
      * @param id ID de la categoría a desbloquear.
      * @return ResponseEntity con la categoría desbloqueada en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @PutMapping("/unblock/{id}")
+    @PutMapping("/unlock/{id}")
     public ResponseEntity<?> unlockCategory(@PathVariable Long id) {
         try {
             Category category = service.unlockCategory(id);
@@ -99,7 +99,7 @@ public class CategoryController extends GenericControllerImpl<Category, Category
      * @return ResponseEntity con la lista de categorías desbloqueadas en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @GetMapping("/filter/unlocked/{categoryType}")
+    @GetMapping("/filter/unlocked/type/{categoryType}")
     public ResponseEntity<?> findUnlockedCategoriesByType(@PathVariable String categoryType) {
         try {
             List<CategoryDTO> unlockedCategories = service.findUnlockedCategoriesByType(categoryType);
@@ -117,7 +117,7 @@ public class CategoryController extends GenericControllerImpl<Category, Category
      * @return ResponseEntity con la lista de categorías desbloqueadas en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @GetMapping("/filter/unlocked/{id}")
+    @GetMapping("/filter/unlocked/id/{id}")
     public ResponseEntity<?> findUnlockedCategoriesExceptId(@PathVariable Long id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.findUnlockedCategoriesByTypeExceptId(id));

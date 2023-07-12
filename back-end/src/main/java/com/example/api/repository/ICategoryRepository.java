@@ -9,6 +9,10 @@ import java.util.List;
 @Repository
 public interface ICategoryRepository extends IGenericRepository<Category, Long> {
 
+    // Busca los hjos de una categoría
+    @Query("SELECT c FROM Category c WHERE c.fatherCategory.id = :parentId")
+    List<Category> findByParentCategoryId(Long parentId);
+
     // Busca las categorías de productos
     @Query(value = "SELECT * FROM category WHERE type = 'P'", nativeQuery = true)
     List<Category> findProductCategories();
