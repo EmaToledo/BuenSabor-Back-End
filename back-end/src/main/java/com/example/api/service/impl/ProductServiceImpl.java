@@ -1,10 +1,12 @@
 package com.example.api.service.impl;
 
+import com.example.api.dtos.CategoryDTO;
 import com.example.api.dtos.ProductDTO;
 import com.example.api.entity.Category;
 import com.example.api.entity.Product;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.mapper.ProductMapper;
+import com.example.api.repository.ICategoryRepository;
 import com.example.api.repository.IProductRepository;
 import com.example.api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
 
     @Autowired
     private IProductRepository productRepository;
+    @Autowired
+    private ICategoryRepository categoryRepository;
 
     private final ProductMapper productMapper = ProductMapper.getInstance();
 
@@ -44,14 +48,7 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
         try {
             Product product = productMapper.toEntity(dto);
 
-            if (dto.getProductCategoryID() != null) {
-                if (productRepository.existsById(dto.getProductCategoryID())) {
-                    Category productCategory = productRepository.findById(dto.getProductCategoryID()).get().getProductCategory();
-                    product.setProductCategory(productCategory);
-                } else {
-                    throw new Exception("La categoría del product no existe");
-                }
-            }
+            setProductCategoryIfExists(dto.getProductCategoryID(), product);
 
             return productRepository.save(product);
         } catch (Exception e) {
@@ -72,34 +69,34 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     @Transactional
     public Product updateProduct(Long id, ProductDTO dto) throws Exception {
         try {
-            Optional<Product> optionalProduct = productRepository.findById(id);
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new Exception("El producto a actualizar no existe."));
 
-            if (optionalProduct.isEmpty()) {
-                throw new Exception("El product a actualizar no existe.");
-            }
+            setProductCategoryIfExists(dto.getProductCategoryID(), product);
 
-            Product product = optionalProduct.get();
-
-            if (dto.getProductCategoryID() != null) {
-                if (productRepository.existsById(dto.getProductCategoryID())) {
-                    Category productCategory = productRepository.findById(dto.getProductCategoryID()).get().getProductCategory();
-                    product.setProductCategory(productCategory);
-                } else {
-                    throw new Exception("La categoria product no existe");
-                }
-            } else {
-                product.setProductCategory(null);
-            }
             product.setDenomination(dto.getDenomination());
-            product.setDescription(dto.getDescription());
             product.setAvailability(dto.getAvailability());
-            product.setMinStock(dto.getMinStock());
-            product.setActualStock(dto.getActualStock());
-            product.setUrlImage(dto.getUrlImage());
 
             return productRepository.save(product);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Asigna la categoría del producto si existe en la base de datos, o la establece como null si no se proporciona una categoría.
+     *
+     * @param categoryId ID de la categoría del producto.
+     * @param product    Producto al cual se le asignará la categoría.
+     * @throws Exception si la categoría del producto no existe en la base de datos.
+     */
+    private void setProductCategoryIfExists(Long categoryId, Product product) throws Exception {
+        if (categoryId != null) {
+            Category productCategory = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new Exception("La categoria del producto no existe"));
+            product.setProductCategory(productCategory);
+        } else {
+            product.setProductCategory(null);
         }
     }
 

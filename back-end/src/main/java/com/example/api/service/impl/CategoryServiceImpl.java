@@ -2,6 +2,7 @@ package com.example.api.service.impl;
 
 import com.example.api.dtos.CategoryDTO;
 import com.example.api.entity.Category;
+import com.example.api.entity.Product;
 import com.example.api.mapper.CategoryMapper;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.repository.ICategoryRepository;
@@ -42,29 +43,12 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     @Override
     @Transactional
     public Category saveCategory(CategoryDTO dto) throws Exception {
-        try {
-            Category category = categoryMapper.toEntity(dto);
+        Category category = categoryMapper.toEntity(dto);
 
-            if (dto.getCategoryFatherId() != null) {
-                if (categoryRepository.existsById(dto.getCategoryFatherId())) {
-                    Category fatherCategory = categoryRepository.findById(dto.getCategoryFatherId())
-                            .orElseThrow(() -> new Exception("La categoría padre no existe"));
-                    category.setFatherCategory(fatherCategory);
-                } else {
-                    throw new Exception("La categoría padre no existe");
-                }
-            }
+        setCategoryFatherIfExists(dto.getCategoryFatherId(), category);
+        verifCategoryType(dto, category);
 
-            if (dto.getType() == CATEGORY_TYPE_INGREDIENT || dto.getType() == CATEGORY_TYPE_PRODUCT || dto.getType() == CATEGORY_TYPE_MANUFACTURED_PRODUCT || dto.getType() == CATEGORY_TYPE_GENERAL) {
-                category.setType(dto.getType());
-            } else {
-                throw new Exception(dto.getType() + " - No es un tipo válido de categoría");
-            }
-
-            return categoryRepository.save(category);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
+        return categoryRepository.save(category);
     }
 
     /**
@@ -78,44 +62,52 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     @Override
     @Transactional
     public Category updateCategory(Long id, CategoryDTO dto) throws Exception {
-        try {
-            Optional<Category> optionalCategory = categoryRepository.findById(id);
+            Category category = categoryRepository.findById(id)
+                    .orElseThrow(() -> new Exception("La categoría a actualizar no existe."));
 
-            if (optionalCategory.isEmpty()) {
-                throw new Exception("La categoría a actualizar no existe.");
-            }
-
-            Category category = optionalCategory.get();
-
-            if (dto.getCategoryFatherId() != null) {
-                if (categoryRepository.existsById(dto.getCategoryFatherId())) {
-                    Category categoryFather = categoryRepository.findById(dto.getCategoryFatherId())
-                            .orElseThrow(() -> new Exception("La categoría padre no existe"));
-                    category.setFatherCategory(categoryFather);
-                } else {
-                    throw new Exception("La categoría padre no existe");
-                }
-            } else {
-                category.setFatherCategory(null);
-            }
-
-            if (dto.getType() == CATEGORY_TYPE_INGREDIENT || dto.getType() == CATEGORY_TYPE_PRODUCT || dto.getType() == CATEGORY_TYPE_MANUFACTURED_PRODUCT || dto.getType() == CATEGORY_TYPE_GENERAL) {
-                category.setType(dto.getType());
-            } else {
-                throw new Exception(dto.getType() + " - No es un tipo válido de categoría");
-            }
+            setCategoryFatherIfExists(dto.getCategoryFatherId(), category);
+            verifCategoryType(dto, category);
 
             category.setDenomination(dto.getDenomination());
             category.setAvailability(dto.getAvailability());
 
             return categoryRepository.save(category);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+    }
+
+    /**
+     * Asigna la categoría padre si existe en la base de datos, o la establece como null si no se proporciona una categoría.
+     *
+     * @param categoryId ID de la categoría del producto.
+     * @param category   Categoria a la cual se le asignará la categoría padre.
+     * @throws Exception si la categoría padre no existe en la base de datos.
+     */
+    private void setCategoryFatherIfExists(Long categoryId, Category category) throws Exception {
+        if (categoryId != null) {
+            Category categoryFather = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new Exception("La categoria padre no existe"));
+            category.setFatherCategory(categoryFather);
+        } else {
+            category.setFatherCategory(null);
         }
     }
 
     /**
-     * Bloquea una categoría.
+     * Verifica y asigna el tipo de categoría si es uno de los tipos válidos.
+     *
+     * @param dto      DTO con los datos de la categoría.
+     * @param category Categoría a la cual se le asignará el tipo.
+     * @throws Exception si el tipo de categoría proporcionado no es uno de los tipos válidos.
+     */
+    private void verifCategoryType(CategoryDTO dto, Category category) throws Exception {
+        if (dto.getType() == CATEGORY_TYPE_INGREDIENT || dto.getType() == CATEGORY_TYPE_PRODUCT || dto.getType() == CATEGORY_TYPE_MANUFACTURED_PRODUCT || dto.getType() == CATEGORY_TYPE_GENERAL) {
+            category.setType(dto.getType());
+        } else {
+            throw new Exception(dto.getType() + " - No es un tipo válido de categoría");
+        }
+    }
+
+    /**
+     * Bloquea una categoría y todas sus subcategorías.
      *
      * @param id ID de la categoría a bloquear
      * @return La categoría bloqueada
@@ -140,11 +132,6 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
         }
     }
 
-    /**
-     * Bloquea todas las categorías hijas de forma recursiva.
-     *
-     * @param categories Lista de categorías.
-     */
     private void blockChildCategories(List<Category> categories) {
         for (Category childCategory : categories) {
             childCategory.setAvailability(false);
