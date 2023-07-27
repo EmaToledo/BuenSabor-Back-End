@@ -1,8 +1,10 @@
 package com.example.api.service.impl;
 
 import com.example.api.dtos.IngredientDTO;
+import com.example.api.dtos.ProductDTO;
 import com.example.api.entity.Category;
 import com.example.api.entity.Ingredient;
+import com.example.api.entity.Product;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.mapper.IngredientMapper;
 import com.example.api.repository.IIngredientRepository;
@@ -44,14 +46,7 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
         try {
             Ingredient ingredient = ingredientMapper.toEntity(dto);
 
-            if (dto.getIngredientCategoryID() != null) {
-                if (ingredientRepository.existsById(dto.getIngredientCategoryID())) {
-                    Category ingredientCategory = ingredientRepository.findById(dto.getIngredientCategoryID()).get().getIngredientCategory();
-                    ingredient.setIngredientCategory(ingredientCategory);
-                } else {
-                    throw new Exception("La categoría del ingrediente no existe");
-                }
-            }
+            setIngredientCategoryIfExists(dto.getIngredientCategoryID(), ingredient);
 
             return ingredientRepository.save(ingredient);
         } catch (Exception e) {
@@ -72,24 +67,10 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
     @Transactional
     public Ingredient updateIngredient(Long id, IngredientDTO dto) throws Exception {
         try {
-            Optional<Ingredient> optionalIngredient = ingredientRepository.findById(id);
+            Ingredient ingredient = ingredientRepository.findById(id)
+                    .orElseThrow(() -> new Exception("El producto a actualizar no existe."));
 
-            if (optionalIngredient.isEmpty()) {
-                throw new Exception("El ingrediente a actualizar no existe.");
-            }
-
-            Ingredient ingredient = optionalIngredient.get();
-
-            if (dto.getIngredientCategoryID() != null) {
-                if (ingredientRepository.existsById(dto.getIngredientCategoryID())) {
-                    Category ingredientCategory = ingredientRepository.findById(dto.getIngredientCategoryID()).get().getIngredientCategory();
-                    ingredient.setIngredientCategory(ingredientCategory);
-                } else {
-                    throw new Exception("La categoria ingrediente no existe");
-                }
-            } else {
-                ingredient.setIngredientCategory(null);
-            }
+            setIngredientCategoryIfExists(dto.getIngredientCategoryID(), ingredient);
 
             ingredient.setDenomination(dto.getDenomination());
             ingredient.setMinStock(dto.getMinStock());
@@ -100,6 +81,24 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
             return ingredientRepository.save(ingredient);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Asigna la categoría del ingrediente si existe en la base de datos, o la establece como null si no se proporciona una categoría.
+     *
+     * @param categoryId ID de la categoría del ingrediente.
+     * @param ingredient Ingrediente al cual se le asignará la categoría.
+     * @throws Exception si la categoría del ingrediente no existe en la base de datos.
+     */
+    private void setIngredientCategoryIfExists(Long categoryId, Ingredient ingredient) throws Exception {
+        if (categoryId != null) {
+            if (ingredientRepository.existsById(categoryId)) {
+                Category ingredientCategory = ingredientRepository.findById(categoryId).get().getIngredientCategory();
+                ingredient.setIngredientCategory(ingredientCategory);
+            } else {
+                throw new Exception("La categoría del ingrediente no existe");
+            }
         }
     }
 
