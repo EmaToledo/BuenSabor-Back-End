@@ -7,6 +7,7 @@ import com.example.api.entity.Ingredient;
 import com.example.api.entity.Product;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.mapper.IngredientMapper;
+import com.example.api.repository.ICategoryRepository;
 import com.example.api.repository.IIngredientRepository;
 import com.example.api.service.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
 
     @Autowired
     private IIngredientRepository ingredientRepository;
+    @Autowired
+    private ICategoryRepository categoryRepository;
 
     private final IngredientMapper ingredientMapper = IngredientMapper.getInstance();
 
@@ -68,7 +71,7 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
     public Ingredient updateIngredient(Long id, IngredientDTO dto) throws Exception {
         try {
             Ingredient ingredient = ingredientRepository.findById(id)
-                    .orElseThrow(() -> new Exception("El producto a actualizar no existe."));
+                    .orElseThrow(() -> new Exception("El ingrediente a actualizar no existe."));
 
             setIngredientCategoryIfExists(dto.getIngredientCategoryID(), ingredient);
 
@@ -93,12 +96,11 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
      */
     private void setIngredientCategoryIfExists(Long categoryId, Ingredient ingredient) throws Exception {
         if (categoryId != null) {
-            if (ingredientRepository.existsById(categoryId)) {
-                Category ingredientCategory = ingredientRepository.findById(categoryId).get().getIngredientCategory();
-                ingredient.setIngredientCategory(ingredientCategory);
-            } else {
-                throw new Exception("La categoría del ingrediente no existe");
-            }
+            Category ingredientCategory = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new Exception("La categoria del ingrediente no existe"));
+            ingredient.setIngredientCategory(ingredientCategory);
+        } else {
+            ingredient.setIngredientCategory(null);
         }
     }
 

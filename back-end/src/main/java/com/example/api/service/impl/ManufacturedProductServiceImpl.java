@@ -2,9 +2,11 @@ package com.example.api.service.impl;
 
 import com.example.api.dtos.ManufacturedProductDTO;
 import com.example.api.entity.Category;
+import com.example.api.entity.Ingredient;
 import com.example.api.entity.ManufacturedProduct;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.mapper.ManufacturedProductMapper;
+import com.example.api.repository.ICategoryRepository;
 import com.example.api.repository.IManufacturedProductRepository;
 import com.example.api.service.ManufacturedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
 
     @Autowired
     private IManufacturedProductRepository manufacturedProductRepository;
+    @Autowired
+    private ICategoryRepository categoryRepository;
 
     private final ManufacturedProductMapper manufacturedProductMapper = ManufacturedProductMapper.getInstance();
 
@@ -44,14 +48,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
         try {
             ManufacturedProduct manufacturedProduct = manufacturedProductMapper.toEntity(dto);
 
-            if (dto.getManufacturedProductCategoryID() != null) {
-                if (manufacturedProductRepository.existsById(dto.getManufacturedProductCategoryID())) {
-                    Category manufacturedProductCategory = manufacturedProductRepository.findById(dto.getManufacturedProductCategoryID()).get().getManufacturedProductCategory();
-                    manufacturedProduct.setManufacturedProductCategory(manufacturedProductCategory);
-                } else {
-                    throw new Exception("La categoría del manufactured product no existe");
-                }
-            }
+            setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
 
             return manufacturedProductRepository.save(manufacturedProduct);
         } catch (Exception e) {
@@ -72,24 +69,11 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     @Transactional
     public ManufacturedProduct updateManufacturedProduct(Long id, ManufacturedProductDTO dto) throws Exception {
         try {
-            Optional<ManufacturedProduct> optionalManufacturedProduct = manufacturedProductRepository.findById(id);
+            ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(id)
+                    .orElseThrow(() -> new Exception("El producto manufacturado a actualizar no existe."));
 
-            if (optionalManufacturedProduct.isEmpty()) {
-                throw new Exception("El manufactured product a actualizar no existe.");
-            }
+            setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
 
-            ManufacturedProduct manufacturedProduct = optionalManufacturedProduct.get();
-
-            if (dto.getManufacturedProductCategoryID() != null) {
-                if (manufacturedProductRepository.existsById(dto.getManufacturedProductCategoryID())) {
-                    Category manufacturedProductCategory = manufacturedProductRepository.findById(dto.getManufacturedProductCategoryID()).get().getManufacturedProductCategory();
-                    manufacturedProduct.setManufacturedProductCategory(manufacturedProductCategory);
-                } else {
-                    throw new Exception("La categoria manufactured product no existe");
-                }
-            } else {
-                manufacturedProduct.setManufacturedProductCategory(null);
-            }
             manufacturedProduct.setDenomination(dto.getDenomination());
             manufacturedProduct.setDescription(dto.getDescription());
             manufacturedProduct.setCookingTime(dto.getCookingTime());
@@ -99,6 +83,23 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
             return manufacturedProductRepository.save(manufacturedProduct);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Asigna la categoría del producto manufacturado si existe en la base de datos, o la establece como null si no se proporciona una categoría.
+     *
+     * @param categoryId ID de la categoría del producto manufacturado.
+     * @param manufactured producto manufacturado al cual se le asignará la categoría.
+     * @throws Exception si la categoría del producto manufacturado no existe en la base de datos.
+     */
+    private void setManufacturedProductCategoryIfExists(Long categoryId, ManufacturedProduct manufactured) throws Exception {
+        if (categoryId != null) {
+            Category manufacturedProductCategory = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new Exception("La categoria del ingrediente no existe"));
+            manufactured.setManufacturedProductCategory(manufacturedProductCategory);
+        } else {
+            manufactured.setManufacturedProductCategory(null);
         }
     }
 
