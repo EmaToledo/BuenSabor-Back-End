@@ -1,10 +1,8 @@
 package com.example.api.service.impl;
 
 import com.example.api.dtos.IngredientDTO;
-import com.example.api.dtos.ProductDTO;
 import com.example.api.entity.Category;
 import com.example.api.entity.Ingredient;
-import com.example.api.entity.Product;
 import com.example.api.mapper.GenericMapper;
 import com.example.api.mapper.IngredientMapper;
 import com.example.api.repository.ICategoryRepository;
@@ -13,8 +11,6 @@ import com.example.api.service.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, IngredientDTO, Long> implements IngredientService {
@@ -98,6 +94,7 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
         if (categoryId != null) {
             Category ingredientCategory = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new Exception("La categoria del ingrediente no existe"));
+
             ingredient.setIngredientCategory(ingredientCategory);
         } else {
             ingredient.setIngredientCategory(null);
