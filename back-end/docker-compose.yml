@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: el_buen_sabor2
+    ports:
+      - "3306:3306"
+    networks:
+      - elbuensabor-network
+
+  app:
+    build: .
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/el_buen_sabor2?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=GMT&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: mysql
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    networks:
+      - elbuensabor-network
+
+networks:
+  elbuensabor-network:
+    driver: bridge
