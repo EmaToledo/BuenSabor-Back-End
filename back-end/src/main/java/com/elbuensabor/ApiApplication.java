@@ -1,4 +1,4 @@
-package com.elbuensabor.api;
+package com.elbuensabor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

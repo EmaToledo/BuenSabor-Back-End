@@ -143,4 +143,17 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
         }
     }
 
+    @Override
+    @Transactional
+    public Long getLastManufacturedProductId() throws Exception {
+        try {
+            Long lastID = manufacturedProductRepository.findLastManufacturedProductId();
+            lastID += 1;
+
+            return lastID;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 }
