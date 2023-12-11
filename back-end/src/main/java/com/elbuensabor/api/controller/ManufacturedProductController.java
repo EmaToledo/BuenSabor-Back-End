@@ -89,5 +89,15 @@ public class ManufacturedProductController extends GenericControllerImpl<Manufac
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
+    
+    @GetMapping("/lastID")
+    public ResponseEntity<?> getLastManufacturedProductId() {
+        try{
+            Long lastID = service.getLastManufacturedProductId();
+            return ResponseEntity.status(HttpStatus.OK).body(lastID);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
 
 }

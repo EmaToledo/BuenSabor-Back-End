@@ -17,4 +17,6 @@ public interface ManufacturedProductService extends GenericService<ManufacturedP
     // Desbloquea un producto manufacturado
     ManufacturedProduct unlockManufacturedProduct(Long id) throws Exception;
 
+    // Obtiene desde la base de datos el ultimo id para
+    Long getLastManufacturedProductId() throws Exception;
 }
