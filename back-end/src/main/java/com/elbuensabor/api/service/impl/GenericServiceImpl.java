@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.GenericDTO;
+import com.elbuensabor.api.dto.GenericDTO;
 import com.elbuensabor.api.entity.GenericEntity;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.repository.IGenericRepository;

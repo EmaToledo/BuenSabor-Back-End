@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.CategoryDTO;
+import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.mapper.CategoryMapper;
 import com.elbuensabor.api.mapper.GenericMapper;

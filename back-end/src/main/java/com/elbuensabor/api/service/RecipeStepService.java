@@ -1,7 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dtos.RecipeDTO;
-import com.elbuensabor.api.dtos.RecipeStepDTO;
+import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.RecipeStep;
 
 public interface RecipeStepService extends GenericService<RecipeStep, RecipeStepDTO, Long> {

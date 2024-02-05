@@ -1,5 +1,7 @@
 package com.elbuensabor.api.controller;
 
+import com.elbuensabor.api.service.Auth0TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,6 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 @RequestMapping(path = "/api")
 public class Auth0TestController {
+
+    @Autowired
+    private Auth0TokenService service;
+
+    @GetMapping(value = "/get-token")
+    public ResponseEntity<?> getToken() {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.getAuth0Token());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
     /**
      * Endpoint público sin restricciones de acceso.

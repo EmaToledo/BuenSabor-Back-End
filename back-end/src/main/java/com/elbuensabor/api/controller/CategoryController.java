@@ -1,7 +1,7 @@
 package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
-import com.elbuensabor.api.dtos.CategoryDTO;
+import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;

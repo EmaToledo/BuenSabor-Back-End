@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.RecipeStepDTO;
+import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.Recipe;
 import com.elbuensabor.api.entity.RecipeStep;
 import com.elbuensabor.api.mapper.GenericMapper;

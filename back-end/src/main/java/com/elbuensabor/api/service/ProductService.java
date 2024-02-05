@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dtos.ProductDTO;
+import com.elbuensabor.api.dto.ProductDTO;
 import com.elbuensabor.api.entity.Product;
 
 public interface ProductService extends GenericService<Product, ProductDTO, Long> {
