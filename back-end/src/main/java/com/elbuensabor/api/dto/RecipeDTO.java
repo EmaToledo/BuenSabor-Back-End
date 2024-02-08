@@ -1,10 +1,8 @@
-package com.elbuensabor.api.dtos;
+package com.elbuensabor.api.dto;
 
-import com.elbuensabor.api.entity.RecipeStep;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data

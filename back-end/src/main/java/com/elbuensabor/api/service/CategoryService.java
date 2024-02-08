@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dtos.CategoryDTO;
+import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 
 import java.util.List;

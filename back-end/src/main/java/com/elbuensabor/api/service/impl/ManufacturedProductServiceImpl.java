@@ -1,8 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.ManufacturedProductDTO;
+import com.elbuensabor.api.dto.ManufacturedProductDTO;
 import com.elbuensabor.api.entity.Category;
-import com.elbuensabor.api.entity.Ingredient;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.ManufacturedProductMapper;
@@ -12,8 +11,6 @@ import com.elbuensabor.api.service.ManufacturedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class ManufacturedProductServiceImpl extends GenericServiceImpl<ManufacturedProduct, ManufacturedProductDTO, Long> implements ManufacturedProductService {
@@ -148,7 +145,6 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     public Long getLastManufacturedProductId() throws Exception {
         try {
             Long lastID = manufacturedProductRepository.findLastManufacturedProductId();
-            lastID += 1;
 
             return lastID;
         } catch (Exception e) {

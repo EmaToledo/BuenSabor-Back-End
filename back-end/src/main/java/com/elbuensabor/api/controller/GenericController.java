@@ -1,6 +1,6 @@
 package com.elbuensabor.api.controller;
 
-import com.elbuensabor.api.dtos.GenericDTO;
+import com.elbuensabor.api.dto.GenericDTO;
 import com.elbuensabor.api.entity.GenericEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

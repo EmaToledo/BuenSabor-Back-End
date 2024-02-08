@@ -1,7 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.RecipeDTO;
-import com.elbuensabor.api.dtos.RecipeStepDTO;
+import com.elbuensabor.api.dto.RecipeDTO;
+import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.entity.Recipe;
 import com.elbuensabor.api.entity.RecipeStep;
@@ -49,6 +49,7 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
     @Transactional
     public RecipeDTO getCompleteRecipe(Long recipeId) throws Exception {
         try {
+
             Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new Exception("La receta no existe"));
 
             List<RecipeStep> steps = recipeStepRepository.findStepsByRecipeId(recipe.getId());
@@ -134,7 +135,7 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
             setManufacturedProductIfExists(dto.getManufacturedProductId(), recipe);
 
             recipe.setDescription(dto.getDescription());
-
+            recipe.setDenomination(dto.getDenomination());
             recipeRepository.save(recipe);
 
             RecipeDTO modifiedRecipe = recipeMapper.toDTO(recipe);

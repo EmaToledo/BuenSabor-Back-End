@@ -1,7 +1,7 @@
 package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
-import com.elbuensabor.api.dtos.RecipeStepDTO;
+import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.RecipeStep;
 import com.elbuensabor.api.service.RecipeStepService;
 import org.springframework.beans.factory.annotation.Autowired;

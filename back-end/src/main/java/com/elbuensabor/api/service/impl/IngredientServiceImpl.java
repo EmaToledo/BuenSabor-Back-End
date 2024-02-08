@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dtos.IngredientDTO;
+import com.elbuensabor.api.dto.IngredientDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.Ingredient;
 import com.elbuensabor.api.mapper.GenericMapper;

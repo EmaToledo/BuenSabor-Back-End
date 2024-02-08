@@ -1,6 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dtos.GenericDTO;
+import com.elbuensabor.api.dto.GenericDTO;
 import com.elbuensabor.api.entity.GenericEntity;
 
 import java.io.Serializable;

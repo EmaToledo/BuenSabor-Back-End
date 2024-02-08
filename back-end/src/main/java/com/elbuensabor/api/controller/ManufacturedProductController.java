@@ -1,7 +1,7 @@
 package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
-import com.elbuensabor.api.dtos.ManufacturedProductDTO;
+import com.elbuensabor.api.dto.ManufacturedProductDTO;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.service.ManufacturedProductService;
 import org.springframework.beans.factory.annotation.Autowired;

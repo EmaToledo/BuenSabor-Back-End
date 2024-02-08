@@ -1,6 +1,6 @@
 package com.elbuensabor.api.mapper;
 
-import com.elbuensabor.api.dtos.IngredientDTO;
+import com.elbuensabor.api.dto.IngredientDTO;
 import com.elbuensabor.api.entity.Ingredient;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
