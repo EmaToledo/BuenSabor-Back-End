@@ -12,10 +12,10 @@ import java.util.List;
 public interface RoleMapper extends GenericMapper<Role, RoleDTO> {
     static RoleMapper getInstance() { return Mappers.getMapper(RoleMapper.class); }
 
-    @Mapping(source = "idAuth0Role", target = "auth0RoleId")
+    //@Mapping(source = "idAuth0Role", target = "auth0RoleId")
     RoleDTO toDTO(Role role);
 
-    @Mapping(target = "idAuth0Role", source = "auth0RoleId")
+    //@Mapping(target = "idAuth0Role", source = "auth0RoleId")
     Role toEntity(RoleDTO roleDTO);
 
     List<RoleDTO> toDTOList(List<Role> source);

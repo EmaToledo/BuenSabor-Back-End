@@ -34,4 +34,6 @@ public class RoleController extends GenericControllerImpl<Role, RoleDTO> {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ERROR_MESSAGE);
         }
     }
+
+
 }

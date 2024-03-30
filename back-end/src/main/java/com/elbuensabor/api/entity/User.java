@@ -11,7 +11,6 @@ import lombok.Setter;
 @Table(name = "user")
 @Getter
 @Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
 @AttributeOverride(name = "id", column = @Column(name = "id_user"))
 public class User extends GenericEntity {
     @Column(name = "id_auth0_user")
@@ -20,16 +19,21 @@ public class User extends GenericEntity {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "last_name")
+    private String lastName;
+
     @Column(name = "blocked")
     private boolean blocked;
 
-    @Column(name = "logged")
+    @Column(name = "logged", nullable = true)
     private boolean logged;
 
-    @Column(name = "idrol", nullable = true)
-    private String userRoleId;
 
-    @Column(name = "password")
-    private String password;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_rol")
+    private Role role;
 
 }
