@@ -12,7 +12,6 @@ public class ProductDTO extends GenericDTO {
     private Boolean availability;
     private Long minStock;
     private Long actualStock;
-    private String urlImage;
     private Long productCategoryID;
 
 }
