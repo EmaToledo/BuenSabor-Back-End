@@ -1,6 +1,8 @@
 package com.elbuensabor.api.service.impl;
 
+import com.elbuensabor.api.dto.Auth0RoleDTO;
 import com.elbuensabor.api.dto.RoleDTO;
+import com.elbuensabor.api.entity.RecipeStep;
 import com.elbuensabor.api.entity.Role;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.RoleMapper;
@@ -29,7 +31,7 @@ public class RoleServiceImpl extends GenericServiceImpl<Role, RoleDTO, Long> imp
         super(genericRepository, genericMapper);
     }
     @Transactional(readOnly = true)
-    public  RoleDTO[] getUserRolesAuth0(String id) {
+    public  Auth0RoleDTO[] getUserRolesAuth0(String id) {
         try {
             String token = serviceToken.getAuth0Token();
             String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
@@ -45,13 +47,14 @@ public class RoleServiceImpl extends GenericServiceImpl<Role, RoleDTO, Long> imp
 
             ObjectMapper mapper = new ObjectMapper();
 
-            return mapper.readValue(responseBody, RoleDTO[].class);
+            return mapper.readValue(responseBody, Auth0RoleDTO[].class);
         } catch (Exception e) {
             System.out.println("Error get User Roles: " + e );
             e.printStackTrace();
             return null;
         }
     };
+
 
 
 

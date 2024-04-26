@@ -1,17 +1,14 @@
 package com.elbuensabor.api.dto;
 
+import com.elbuensabor.api.entity.Role;
 import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.EqualsAndHashCode;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class Auth0UserDTO {
     private String email;
     private String password;
     private boolean blocked;
-    private List<RoleDTO> roles;
+    private Role role ;
 }

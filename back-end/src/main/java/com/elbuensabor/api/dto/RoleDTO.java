@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleDTO extends GenericDTO {
-    @JsonProperty("name")
+  // @JsonProperty("name")
     private String denomination;
-    @JsonProperty("id")
-    private String auth0RoleId;
+  // @JsonProperty("id")
+    private String idAuth0Role;
 }

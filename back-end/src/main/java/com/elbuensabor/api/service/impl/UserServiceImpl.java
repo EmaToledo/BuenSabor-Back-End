@@ -1,10 +1,16 @@
 package com.elbuensabor.api.service.impl;
+import com.elbuensabor.api.dto.AddressDTO;
+import com.elbuensabor.api.dto.Auth0UserDTO;
+import com.elbuensabor.api.dto.PhoneDTO;
 import com.elbuensabor.api.dto.UserDTO;
+import com.elbuensabor.api.entity.Role;
 import com.elbuensabor.api.entity.User;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.UserMapper;
 import com.elbuensabor.api.repository.IUserRepository;
+import com.elbuensabor.api.service.AddressService;
 import com.elbuensabor.api.service.Auth0TokenService;
+import com.elbuensabor.api.service.PhoneService;
 import com.elbuensabor.api.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> implements UserService {
@@ -26,6 +33,10 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
     private IUserRepository userRepository;
     @Autowired
     private Auth0TokenService serviceToken;
+    @Autowired
+    private PhoneService servicePhone;
+    @Autowired
+    private AddressService serviceAddress;
 
     private final UserMapper userMapper = UserMapper.getInstance();
 
@@ -36,7 +47,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
     }
     @Override
     @Transactional
-    public ResponseEntity<User> saveUser(UserDTO dto) {
+    public ResponseEntity<User> saveUser(Auth0UserDTO dto) {
         try {
             String token = serviceToken.getAuth0Token();
             String url = "https://" + serviceToken.getDomain() + "/api/v2/users";
@@ -62,10 +73,10 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             HttpStatus httpStatus = HttpStatus.valueOf(response.code());
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(responseBody);
-            User user = userMapper.toEntity(dto);
+            User user = userMapper.Auth0toEntity(dto);
             user.setIdAuth0User(jsonNode.get("user_id").asText());
             userRepository.save(user);
-            return ResponseEntity.status(httpStatus).body(assignUserToRole(user.getIdAuth0User(),new String[]{user.getUserRoleId()}));
+            return ResponseEntity.status(httpStatus).body(assignUserToRole(user.getIdAuth0User(),user.getRole()));
         } catch (Exception e) {
             System.out.println("Error creating new user: " + e );
             e.printStackTrace();
@@ -74,13 +85,40 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
     };
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public User saveUserComplete(UserDTO dto) {
+        try {
+            User user = userMapper.toEntity(dto);
+            userRepository.save(user);
+            user.setId(getLastUserId());
+            if (dto.getPhones() != null) {
+                for (PhoneDTO phoneDTO : dto.getPhones()) {
+                    servicePhone.savePhone(phoneDTO,user);
+                }
+            }
+            if (dto.getAddresses() != null) {
+                for (AddressDTO addressDTO : dto.getAddresses()) {
+                    serviceAddress.saveAddress(addressDTO,user);
+                }
+            }
+
+
+            return assignUserToRole(user.getIdAuth0User(),user.getRole());
+        } catch (Exception e) {
+            System.out.println("Error creating new user: " + e);
+            e.printStackTrace();
+            throw new RuntimeException("Error al guardar el usuario completo", e);
+        }
+    }
+
+
+    @Override
     @Transactional
     public User blockedStatus(String id,boolean blocked) {
         try {
             String token = serviceToken.getAuth0Token();
             String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
             String url = "https://" + serviceToken.getDomain() + "/api/v2/users/" + encodedUserId;
-
             OkHttpClient client = new OkHttpClient();
             JsonObject requestBody = new JsonObject();
             requestBody.addProperty("blocked", blocked);
@@ -97,6 +135,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             client.newCall(request).execute();
              User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
              user.setBlocked(blocked);
+
             return userRepository.save(user);
         } catch (Exception e) {
 
@@ -156,7 +195,6 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
 
             client.newCall(request).execute();
             User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
-            user.setPassword(password);
             return userRepository.save(user);
         } catch (Exception e) {
             System.out.println("Error get Logins Count user: " + e );
@@ -165,7 +203,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
         }
     };
     @Transactional
-    public User assignUserToRole(String id,String[] rolesId) {
+    public User assignUserToRole(String id, Role role) {
         try {
             String token = serviceToken.getAuth0Token();
             String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
@@ -173,10 +211,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             OkHttpClient client = new OkHttpClient();
             JsonObject requestBody = new JsonObject();
             JsonArray rolesArray = new JsonArray();
-            for (String role : rolesId) {
-                rolesArray.add(role);
-            }
-
+            rolesArray.add(role.getIdAuth0Role());
             requestBody.add("roles", rolesArray);
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType, requestBody.toString());
@@ -191,7 +226,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             Response response = client.newCall(request).execute();
             HttpStatus httpStatus = HttpStatus.valueOf(response.code());
             User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
-            user.setUserRoleId(rolesId[0]);
+            user.setRole(role);
             return userRepository.save(user);
         } catch (Exception e) {
             System.out.println("Error assigning user to role = "+ e );
@@ -228,7 +263,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             client.newCall(request).execute();
 
             User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
-            user.setUserRoleId("");
+            user.getRole().setIdAuth0Role("");
             return userRepository.save(user);
         } catch (Exception e) {
             System.out.println("Error DELETE role from user = "+ e );
@@ -261,5 +296,54 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
         }
     };
 
+    @Transactional
+    public void logIn(String id) throws Exception {
+        try {
+//            String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
+            User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
+            user.setLogged(true);
+            userRepository.save(user);
+        }catch (Exception e){
+            throw  new Exception(e.getMessage());
+        }
+    }
+    @Transactional
+    public void logOut(String id) throws Exception {
+        try {
+//            String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
+            User user = userRepository.findByIdAuth0User(id).orElseThrow(() -> new Exception("User not found"));
+            user.setLogged(false);
+            userRepository.save(user);
+        }catch (Exception e){
+            throw  new Exception(e.getMessage());
+        }
+    }
+    @Override
+    public boolean checkEmailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+    public UserDTO getUserDTOWithPhonesAndAddresses(String userId) throws Exception {
+        try {
+            User user = userRepository.findByIdAuth0User(userId).orElseThrow(() -> new Exception("User not found"));
+            List<PhoneDTO> phoneDTOs = servicePhone.getPhoneDTOsByUserId(user);
+            List<AddressDTO> addressDTOs = serviceAddress.getAddressDTOsByUserId(user);
+            UserDTO userDTO = UserMapper.getInstance().toDTO(user);
+            userDTO.setPhones(phoneDTOs);
+            userDTO.setAddresses(addressDTOs);
+            return userDTO;
+        }catch (Exception e){
+            throw  new Exception(e.getMessage());
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public Long getLastUserId() throws Exception {
+        try {
+            return userRepository.findLastUserId();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
 
 }
