@@ -1,0 +1,17 @@
+package com.elbuensabor.api.dto;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper=false)
+public class ImageDTO extends GenericDTO {
+
+    private String name;
+    private String route;
+    private String type;
+    private Integer size;
+    private Long productId;
+    private Long manufacturedProductId;
+
+}

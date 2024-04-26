@@ -30,9 +30,6 @@ public class ManufacturedProduct extends GenericEntity {
     @Column(name = "availability")
     private Boolean availability;
 
-    @Column(name = "url_image")
-    private String urlImage;
-
     @ManyToOne
     @JoinColumn(name = "id_category")
     @JsonBackReference

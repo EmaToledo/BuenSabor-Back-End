@@ -13,7 +13,6 @@ public class ManufacturedProductDTO extends GenericDTO {
     private String description;
     private Time cookingTime;
     private Boolean availability;
-    private String urlImage;
     private Long manufacturedProductCategoryID;
 
 }

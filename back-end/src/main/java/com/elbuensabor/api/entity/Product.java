@@ -31,9 +31,6 @@ public class Product extends GenericEntity {
     @Column(name = "actual_stock")
     private Long actualStock;
 
-    @Column(name = "url_image")
-    private String urlImage;
-
     @ManyToOne
     @JoinColumn(name = "id_category")
     @JsonBackReference

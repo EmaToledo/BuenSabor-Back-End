@@ -75,7 +75,6 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
             manufacturedProduct.setDescription(dto.getDescription());
             manufacturedProduct.setCookingTime(dto.getCookingTime());
             manufacturedProduct.setAvailability(dto.getAvailability());
-            manufacturedProduct.setUrlImage(dto.getUrlImage());
 
             return manufacturedProductRepository.save(manufacturedProduct);
         } catch (Exception e) {
