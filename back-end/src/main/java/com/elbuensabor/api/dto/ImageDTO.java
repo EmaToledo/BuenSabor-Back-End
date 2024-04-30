@@ -13,5 +13,6 @@ public class ImageDTO extends GenericDTO {
     private Integer size;
     private Long productId;
     private Long manufacturedProductId;
+    private Long userId;
 
 }
