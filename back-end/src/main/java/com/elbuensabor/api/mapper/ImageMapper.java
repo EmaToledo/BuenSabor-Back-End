@@ -15,11 +15,13 @@ public interface ImageMapper extends GenericMapper<Image, ImageDTO> {
     // mapea una entidad Image a un DTO ImageDTO
     @Mapping(source = "idProduct.id", target = "productId")
     @Mapping(source = "idManufacturedProduct.id", target = "manufacturedProductId")
+    @Mapping(source = "idUser.id", target = "userId")
     ImageDTO toDTO(Image source);
 
     // mapea un DTO ImageDTO a una entidad Image
     @Mapping(target = "idProduct", ignore = true)
     @Mapping(target = "idManufacturedProduct", ignore = true)
+    @Mapping(target = "idUser", ignore = true)
     Image toEntity(ImageDTO source);
 
 }

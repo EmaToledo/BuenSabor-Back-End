@@ -38,4 +38,10 @@ public class Image extends GenericEntity {
     @JsonBackReference
     private ManufacturedProduct idManufacturedProduct;
 
+    @ManyToOne
+    @JoinColumn(name = "idUser")
+    @JsonBackReference
+    private User idUser;
+
+
 }
