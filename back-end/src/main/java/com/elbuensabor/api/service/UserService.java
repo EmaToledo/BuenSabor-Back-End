@@ -18,8 +18,9 @@ public interface UserService extends GenericService<User, UserDTO, Long> {
     boolean checkEmailExists(String email);
     void logIn(String userId) throws Exception;
     void logOut(String userId) throws Exception;
-    User saveUserComplete(UserDTO newUser) throws Exception;
-    UserDTO getUserDTOWithPhonesAndAddresses(String userId) throws Exception;
 
+    Role getUserRolByAuth0Id(String userId) throws Exception;
+    UserDTO getUserbyAuth0Id(String userId) throws Exception;
+    String updateUserPicture(String userId,String picture) throws Exception;
 
 }

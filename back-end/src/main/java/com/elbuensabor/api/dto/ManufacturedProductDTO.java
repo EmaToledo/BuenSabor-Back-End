@@ -14,5 +14,4 @@ public class ManufacturedProductDTO extends GenericDTO {
     private Time cookingTime;
     private Boolean availability;
     private Long manufacturedProductCategoryID;
-
 }

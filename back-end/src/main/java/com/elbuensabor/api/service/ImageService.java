@@ -16,4 +16,6 @@ public interface ImageService extends GenericService<Image, ImageDTO, Long> {
     // Elimina una imagen
     String deleteImageFile(Long id) throws Exception;
 
+    ImageDTO getImageIdbyFilter(Long id , String filter) throws Exception;
+
 }

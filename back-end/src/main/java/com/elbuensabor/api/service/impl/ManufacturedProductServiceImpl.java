@@ -6,6 +6,7 @@ import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.ManufacturedProductMapper;
 import com.elbuensabor.api.repository.ICategoryRepository;
+import com.elbuensabor.api.repository.IImageRepository;
 import com.elbuensabor.api.repository.IManufacturedProductRepository;
 import com.elbuensabor.api.service.ManufacturedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,5 +151,6 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
             throw new Exception(e.getMessage());
         }
     }
+
 
 }

@@ -27,6 +27,8 @@ public class Image extends GenericEntity {
 
     @Column(name = "size")
     private Integer size;
+    @Column(name = "base64", columnDefinition = "MEDIUMTEXT")
+    private String base64;
 
     @ManyToOne
     @JoinColumn(name = "idProduct")

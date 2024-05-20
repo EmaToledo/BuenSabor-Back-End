@@ -137,4 +137,14 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
         }
     }
 
+    @Override
+    @Transactional
+    public Long getLastProductId() throws Exception {
+        try {
+            return productRepository.findLastProductId();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 }

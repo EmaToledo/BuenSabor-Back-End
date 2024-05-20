@@ -55,5 +55,13 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
     }
+    @GetMapping(value = "/{filter}/{id}")
+    public ResponseEntity<?> getImageByIdFilter(@PathVariable Long id,@PathVariable String filter) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.getImageIdbyFilter(id,filter));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
+        }
+    }
 
 }

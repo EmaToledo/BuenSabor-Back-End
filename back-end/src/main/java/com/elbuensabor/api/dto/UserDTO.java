@@ -11,11 +11,12 @@ import java.util.List;
 public class UserDTO extends GenericDTO {
     private String auth0UserId;
     private String email;
+    private String address;
+    private String phone;
     private boolean blocked;
     private boolean logged;
     private Role role;
     private String name;
     private String lastName;
-    private List<PhoneDTO> phones;
-    private List<AddressDTO> addresses;
+    private String apartment;
 }

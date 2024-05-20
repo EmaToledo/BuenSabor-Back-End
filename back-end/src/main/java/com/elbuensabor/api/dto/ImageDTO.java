@@ -11,6 +11,7 @@ public class ImageDTO extends GenericDTO {
     private String route;
     private String type;
     private Integer size;
+    private String base64;
     private Long productId;
     private Long manufacturedProductId;
     private Long userId;

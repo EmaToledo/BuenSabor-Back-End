@@ -17,4 +17,7 @@ public interface ProductService extends GenericService<Product, ProductDTO, Long
     // Desbloquea un producto
     Product unlockProduct(Long id) throws Exception;
 
+    // Obtiene desde la base de datos el ultimo id para
+    Long getLastProductId() throws Exception;
+
 }
