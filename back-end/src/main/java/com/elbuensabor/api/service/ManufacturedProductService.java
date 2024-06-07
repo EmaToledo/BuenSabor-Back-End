@@ -19,4 +19,9 @@ public interface ManufacturedProductService extends GenericService<ManufacturedP
 
     // Obtiene desde la base de datos el ultimo id para
     Long getLastManufacturedProductId() throws Exception;
+
+    // trae un producto manufacturado con su precio
+    ManufacturedProductDTO getManufacturedProductComplete(Long id) throws Exception;
+
+    ManufacturedProductDTO getManufacturedProductOnlySellPrice(Long id) throws Exception;
 }

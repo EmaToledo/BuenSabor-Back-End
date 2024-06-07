@@ -7,6 +7,7 @@ import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.ProductMapper;
 import com.elbuensabor.api.repository.ICategoryRepository;
 import com.elbuensabor.api.repository.IProductRepository;
+import com.elbuensabor.api.service.PriceService;
 import com.elbuensabor.api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     private IProductRepository productRepository;
     @Autowired
     private ICategoryRepository categoryRepository;
+    @Autowired
+    private PriceService priceService;
 
     private final ProductMapper productMapper = ProductMapper.getInstance();
 
@@ -44,10 +47,10 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     public Product saveProduct(ProductDTO dto) throws Exception {
         try {
             Product product = productMapper.toEntity(dto);
-
             setProductCategoryIfExists(dto.getProductCategoryID(), product);
-
-            return productRepository.save(product);
+            productRepository.save(product);
+            priceService.savePrice(dto.getPrice(),getLastProductId(),1);
+            return product;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -68,12 +71,11 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
         try {
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new Exception("El producto a actualizar no existe."));
-
+            priceService.savePrice(dto.getPrice(),id,1);
             setProductCategoryIfExists(dto.getProductCategoryID(), product);
-
             product.setDenomination(dto.getDenomination());
             product.setAvailability(dto.getAvailability());
-
+            product.setDescription(dto.getDescription());
             return productRepository.save(product);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -142,6 +144,30 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     public Long getLastProductId() throws Exception {
         try {
             return productRepository.findLastProductId();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ProductDTO getProductComplete(Long id) throws Exception {
+        try {
+            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found"))) ;
+            dto.setPrice(priceService.getPricebyIdFilter(id,1));
+            return dto;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ProductDTO getProductOnlySellPrice(Long id) throws Exception {
+        try {
+            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found"))) ;
+            dto.setPrice(priceService.getOnlySellPrice(id,1));
+            return dto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

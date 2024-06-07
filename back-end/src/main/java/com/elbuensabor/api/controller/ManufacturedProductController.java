@@ -93,8 +93,25 @@ public class ManufacturedProductController extends GenericControllerImpl<Manufac
     @GetMapping("/lastID")
     public ResponseEntity<?> getLastManufacturedProductId() {
         try{
-            Long lastID = service.getLastManufacturedProductId();
-            return ResponseEntity.status(HttpStatus.OK).body(lastID);
+            return ResponseEntity.status(HttpStatus.OK).body(service.getLastManufacturedProductId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+    @GetMapping("/complete/{id}")
+    public ResponseEntity<?> getManufacturedProductComplete(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getManufacturedProductComplete(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+    @GetMapping("/sell/{id}")
+    public ResponseEntity<?> getManufacturedProductOnlySellPrice(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getManufacturedProductOnlySellPrice(id));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }

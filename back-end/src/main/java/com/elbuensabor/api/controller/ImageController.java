@@ -24,24 +24,25 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
      * Guarda una imagen.
      * URL: http://localhost:4000/api/images/save
      *
-     * @param dto       ImageDTO represtenta al DTO de la imagen a guardar.
+     * @param filter  filtro para saber si la imagen es de user,product o Manufactured product
+     * @param id   del user,product o Manufactured product relacionado a la imagen
      * @param imageFile MultipartFile imageFile que representa la imagen a guardar.
      * @return ResponseEntity con la image guardada en el cuerpo de la respuesta.
      * HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @PostMapping(value = "/save-image")
-    public ResponseEntity<?> saveImage(@RequestPart ImageDTO dto, @RequestParam("imageFile") MultipartFile imageFile) {
+    @PostMapping(value = "/save-image/{filter}/{id}")
+    public ResponseEntity<?> saveImage(@PathVariable Long id,@PathVariable Long filter,@RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(imageService.saveImageFile(dto, imageFile));
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.saveImageFile(filter,id, imageFile));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
     }
 
-    @PostMapping(value = "/replace-image/{id}")
-    public ResponseEntity<?> replaceImage(@PathVariable Long id, @RequestPart ImageDTO dto, @RequestParam("imageFile") MultipartFile imageFile) {
+    @PostMapping(value = "/replace-image/{filter}/{idFilter}/{idImage}")
+    public ResponseEntity<?> replaceImage(@PathVariable Long idImage,@PathVariable Long filter,@PathVariable Long idFilter, @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(imageService.replaceImage(id, dto, imageFile));
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.replaceImage(idImage,filter,idFilter,imageFile));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }

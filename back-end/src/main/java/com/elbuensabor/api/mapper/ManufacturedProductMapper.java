@@ -17,6 +17,7 @@ public interface ManufacturedProductMapper extends GenericMapper<ManufacturedPro
 
     // Convierte un objeto ManufacturedProduct en un objeto ManufacturedProductDTO
     @Mapping(source = "manufacturedProductCategory.id", target = "manufacturedProductCategoryID")
+    @Mapping(target = "price", ignore = true)
     ManufacturedProductDTO toDTO(ManufacturedProduct manufacturedProduct);
 
     // Convierte un objeto ManufacturedProductDTO en un objeto ManufacturedProduct

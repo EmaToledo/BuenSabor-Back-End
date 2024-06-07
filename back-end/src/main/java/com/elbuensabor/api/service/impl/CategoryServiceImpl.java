@@ -288,4 +288,18 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
         }
     }
 
+    /**
+     * Obtiene las categorías generales.
+     *
+     * @return Lista de categorías generales
+     * @throws Exception Si ocurre algún error al obtener las categorías
+     */
+    public List<CategoryDTO> findProductAndManufacturedProductCategories() throws Exception {
+        try {
+            return genericMapper.toDTOsList(categoryRepository.findAvailableProductAndManufacturedCategoriesWithoutFather());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 }

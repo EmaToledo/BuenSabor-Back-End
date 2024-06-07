@@ -20,4 +20,9 @@ public interface ProductService extends GenericService<Product, ProductDTO, Long
     // Obtiene desde la base de datos el ultimo id para
     Long getLastProductId() throws Exception;
 
+    // Trae producto con su precio
+    ProductDTO getProductComplete(Long id) throws Exception;
+
+    ProductDTO  getProductOnlySellPrice (Long id) throws Exception;
+
 }

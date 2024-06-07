@@ -40,4 +40,7 @@ public interface CategoryService extends GenericService<Category, CategoryDTO, L
     // Obtiene todas las categorías generales
     List<CategoryDTO> findGeneralCategories() throws Exception;
 
+    // Obtiene todas las categorías generales
+    List<CategoryDTO> findProductAndManufacturedProductCategories() throws Exception;
+
 }

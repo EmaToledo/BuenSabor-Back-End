@@ -22,6 +22,9 @@ public interface ImageMapper extends GenericMapper<Image, ImageDTO> {
     @Mapping(target = "idProduct", ignore = true)
     @Mapping(target = "idManufacturedProduct", ignore = true)
     @Mapping(target = "idUser", ignore = true)
+    @Mapping(target = "type", ignore = true)
+    @Mapping(target = "size", ignore = true)
+    @Mapping(target = "route", ignore = true)
     Image toEntity(ImageDTO source);
 
 }

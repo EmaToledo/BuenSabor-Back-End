@@ -6,11 +6,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class ImageDTO extends GenericDTO {
-
     private String name;
-    private String route;
-    private String type;
-    private Integer size;
     private String base64;
     private Long productId;
     private Long manufacturedProductId;
