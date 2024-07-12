@@ -107,14 +107,13 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
      * Cambia el estado cancel del la Orden a true
      * URL: http://localhost:4000/api/order/cencel/{id}
      * @param id  id del Orden a buscar
-     * @param dto Cuerpo del Orden a editar
      * @return ResponseEntity con la lista de ordenes con sus relaciones  en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
     @PutMapping("/cencel/{id}")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long id,@RequestBody OrderDTO dto) {
+    public ResponseEntity<?> cancelOrder(@PathVariable Long id) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(service.cancelOrder(id,dto));
+            return ResponseEntity.status(HttpStatus.OK).body(service.cancelOrder(id));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }

@@ -10,11 +10,12 @@ import java.util.List;
 
 @Repository
 public interface IOrderRepository extends IGenericRepository<Order, Long>{
-    @EntityGraph(attributePaths = {"orderDetails", "orderDetails.item"})
+    @EntityGraph(attributePaths = {"orderDetails", "orderDetails.product","orderDetails.manufacturedProduct"})
     List<Order> findAll();
 
-    @EntityGraph(attributePaths = {"orderDetails", "orderDetails.item"})
-    List<Order> findAllByUserId(Long id);
+    @EntityGraph(attributePaths = {"orderDetails", "orderDetails.product","orderDetails.manufacturedProduct"})
+    //@Query("SELECT o FROM Order o WHERE o.user.id = :userId")
+    List<Order> findAllByUserId(@Param("userId") Long userId);
 
     @Query("SELECT o FROM Order o WHERE o.state = :state")
     List<Order> findAllByOrderstate(@Param("state") boolean state);

@@ -1,13 +1,14 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dto.CartItemDTO;
-import com.elbuensabor.api.dto.ItemListDTO;
-import com.elbuensabor.api.dto.OrderDTO;
-import com.elbuensabor.api.dto.OrderDetailDTO;
+import com.elbuensabor.api.Enum.OrderStatus;
+import com.elbuensabor.api.Enum.PaymentStatus;
+import com.elbuensabor.api.dto.*;
 import com.elbuensabor.api.entity.*;
 import com.elbuensabor.api.mapper.*;
 import com.elbuensabor.api.repository.*;
+import com.elbuensabor.api.service.OrderDetailService;
 import com.elbuensabor.api.service.OrderService;
+import com.elbuensabor.api.service.PaymentMarketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     private final ProductMapper productMapper = ProductMapper.getInstance();
     private final ManufacturedProductMapper manufacturedProductMapper = ManufacturedProductMapper.getInstance();
     @Autowired
+    private OrderDetailService orderDetailService;
+    @Autowired
     private IOrderRepository orderRepository;
     @Autowired
     private IOrderDetailRepository orderDetailRepository;
@@ -37,6 +40,8 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     private IManufacturedProductRepository manufacturedProductRepository;
     @Autowired
     private IPriceRepository priceRepository;
+    @Autowired
+    private PaymentMarketService paymentMarketService;
     @Override
     @Transactional(readOnly = true)
     public  List<OrderDTO> getAllOrders() throws Exception{
@@ -68,14 +73,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
             List<OrderDTO> ordersDTOList = new ArrayList<>();
             for (Order order: orders) {
                 OrderDTO orderDTO = this.orderMapper.toDTO(order);
-                List<OrderDetailDTO> orderDetailDTOList = new ArrayList<>();
-                for (OrderDetail orderDetail: order.getOrderDetails()) {
-                    OrderDetailDTO orderDetailDTO = this.orderDetailMapper.toDTO(orderDetail);
-                    orderDetailDTO.setItemProduct(productMapper.toDTO(orderDetail.getProduct()));
-                    orderDetailDTO.setItemManufacturedProduct(manufacturedProductMapper.toDTO(orderDetail.getManufacturedProduct()));
-                    orderDetailDTOList.add(orderDetailDTO);
-                }
-                orderDTO.setOrderDetails(orderDetailDTOList);
+                orderDTO.setOrderDetails(orderDetailService.mapperToDtoListComplete(order.getOrderDetails()));
                 ordersDTOList.add(orderDTO);
             }
             return ordersDTOList;
@@ -109,47 +107,45 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     **/
     @Override
     @Transactional
-    public  Order saveOrder(OrderDTO dto) throws Exception{
+    public OrderDTO saveOrder(OrderDTO dto) throws Exception {
         try {
             Order order = orderMapper.toEntity(dto);
             if (dto.getUserId() != null) {
-                    order.setUser(userRepository.findById(dto.getUserId()).orElseThrow(() -> new Exception("User not found")));
+                order.setUser(userRepository.findById(dto.getUserId()).orElseThrow(() -> new Exception("User not found")));
             }
             order.setDateTime(LocalDateTime.now());
-            Order saveOrder = orderRepository.save(order);
-            List<OrderDetail> orderDetailList = new ArrayList<>();
-            for (OrderDetailDTO orderDetailDTO : dto.getOrderDetails()) {
-                OrderDetail orderDetail = orderDetailMapper.toEntity(orderDetailDTO);
-                if (orderDetailDTO.getItemProduct() != null && productRepository.existsById(orderDetailDTO.getItemProduct().getId())){
-                    orderDetail.setProduct(productMapper.toEntity(orderDetailDTO.getItemProduct()));
-                }
-                if (orderDetailDTO.getItemManufacturedProduct() != null && manufacturedProductRepository.existsById(orderDetailDTO.getItemManufacturedProduct().getId())) {
-                    orderDetail.setManufacturedProduct(manufacturedProductMapper.toEntity(orderDetailDTO.getItemManufacturedProduct()));
-                }
-
-//                orderDetail.setOrder(saveOrder);
-                orderDetailList.add(orderDetail);
-                orderDetailRepository.save(orderDetail);
-            }
-            saveOrder.setOrderDetails(orderDetailList);
-            return  orderRepository.save(saveOrder);
-        }catch (Exception e){
-            throw new Exception(e.getMessage());
+            Order savedOrder = orderRepository.save(order);
+            savedOrder.setOrderDetails(orderDetailService.saveOrderDetails(dto.getOrderDetails(), savedOrder));
+            dto = orderMapper.toDTO(savedOrder);
+            dto.setOrderDetails(orderDetailService.mapperToDtoListComplete(savedOrder.getOrderDetails()));
+            return dto;
+        } catch (Exception e) {
+            throw new Exception("Error saving order: " + e.getMessage(), e);
         }
     }
+
     @Override
     @Transactional
     public  OrderDTO updateOrder(Long id, OrderDTO dto) throws Exception{
         try {
             Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + id));
-            order.setPaid(dto.isPaid());
+                    .orElseThrow(() -> new Exception("Orden no encontrada con el ID: " + id));
+            order.setDiscount(dto.getDiscount());
             order.setEstimatedTime(dto.getEstimatedTime());
-            order.setState(dto.isState());
-            //-----------
+            order.setPaymentType(dto.getPaymentType());
+            order.setTotal(dto.getTotal());
             order.setDeliveryMethod(dto.getDeliveryMethod());
             order.setPaymentType(dto.getPaymentType());
-            return orderMapper.toDTO(orderRepository.save(order));
+            // Update the order details collection
+            List<OrderDetail> newtOrderDetails = new ArrayList<>(orderDetailService.updateOrderDetails(dto.getOrderDetails(),order));
+            order.getOrderDetails().clear();
+            order.getOrderDetails().addAll(newtOrderDetails);
+            //Save the Order entity
+            order = orderRepository.save(order);
+            // Maps the Order entity to DTO
+            dto = orderMapper.toDTO(order);
+            dto.setOrderDetails(orderDetailService.mapperToDtoListComplete(order.getOrderDetails()));
+            return dto;
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
@@ -158,14 +154,20 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     /*Falta Calulo del Stock*/
     @Override
     @Transactional
-    public  OrderDTO cancelOrder(Long id, OrderDTO dto) throws Exception{
+    public  OrderDTO cancelOrder(Long id) throws Exception{
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + id));
-
-            order.setCanceled(dto.isCanceled());
-            order.setState(dto.isState());
-
+if (order.getPaymentType().equals("mp")){
+    if (order.getPaid() == PaymentStatus.approved){
+     paymentMarketService.fullRefundPayment(id);
+    }
+}
+if (order.getPaid() == PaymentStatus.in_process){
+            paymentMarketService.cancelPayment(id);
+}
+            order.setCanceled(true);
+            order.setState(OrderStatus.CANCELED);
             return orderMapper.toDTO(orderRepository.save(order));
         }catch (Exception e){
             throw new Exception(e.getMessage());

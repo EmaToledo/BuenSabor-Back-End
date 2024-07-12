@@ -15,7 +15,9 @@ repositories {
 	mavenCentral()
 }
 
+
 dependencies {
+	implementation("com.mercadopago:sdk-java:2.1.24")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")

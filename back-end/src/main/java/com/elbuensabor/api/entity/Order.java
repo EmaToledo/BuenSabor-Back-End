@@ -1,13 +1,13 @@
 package com.elbuensabor.api.entity;
 
+import com.elbuensabor.api.Enum.OrderStatus;
+import com.elbuensabor.api.Enum.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -20,8 +20,9 @@ public class Order  extends GenericEntity {
     @Column(name = "date_Time")
     private LocalDateTime dateTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "paid")
-    private boolean paid;
+    private PaymentStatus paid;
 
     @Column(name = "discount")
     private Double discount;
@@ -35,8 +36,9 @@ public class Order  extends GenericEntity {
     @Column(name = "delivery_method")
     private String deliveryMethod;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private boolean state;
+    private OrderStatus state;
 
     @Column(name = "payment_type")
     private String paymentType;
@@ -45,7 +47,7 @@ public class Order  extends GenericEntity {
     @Column(name = "is_canceled")
     private boolean isCanceled;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true ,fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<OrderDetail> orderDetails;
 

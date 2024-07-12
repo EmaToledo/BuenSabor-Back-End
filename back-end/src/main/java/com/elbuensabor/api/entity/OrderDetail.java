@@ -27,10 +27,6 @@ public class OrderDetail extends GenericEntity{
     @JsonBackReference
     private Order order;
 
-//    @ManyToOne(optional = false)
-//    @JoinColumn(name = "id_item")
-//    private Item item;
-
     @ManyToOne
     @JoinColumn(name = "id_product")
     private Product product;
