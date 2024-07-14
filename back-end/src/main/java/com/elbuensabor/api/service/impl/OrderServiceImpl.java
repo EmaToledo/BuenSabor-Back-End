@@ -136,11 +136,6 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
             order.setTotal(dto.getTotal());
             order.setDeliveryMethod(dto.getDeliveryMethod());
             order.setPaymentType(dto.getPaymentType());
-            // Update the order details collection
-            List<OrderDetail> newtOrderDetails = new ArrayList<>(orderDetailService.updateOrderDetails(dto.getOrderDetails(),order));
-            order.getOrderDetails().clear();
-            order.getOrderDetails().addAll(newtOrderDetails);
-            //Save the Order entity
             order = orderRepository.save(order);
             // Maps the Order entity to DTO
             dto = orderMapper.toDTO(order);
@@ -161,10 +156,9 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 if (order.getPaymentType().equals("mp")){
     if (order.getPaid() == PaymentStatus.approved){
      paymentMarketService.fullRefundPayment(id);
+    }else if (order.getPaid() == PaymentStatus.in_process){
+        paymentMarketService.cancelPayment(id);
     }
-}
-if (order.getPaid() == PaymentStatus.in_process){
-            paymentMarketService.cancelPayment(id);
 }
             order.setCanceled(true);
             order.setState(OrderStatus.CANCELED);
@@ -174,48 +168,6 @@ if (order.getPaid() == PaymentStatus.in_process){
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<CartItemDTO> getCartItemsList() {
-        List<ManufacturedProduct> manufacturedProductList = manufacturedProductRepository.findAll();
-        List<Product> products = productRepository.findAll();
-        List<CartItemDTO> cartItemDTOS = new ArrayList<>();
-        Long fatherCategoryId = null;
-        for (ManufacturedProduct manufacturedProduct : manufacturedProductList) {
-            Double price = priceRepository.findPriceIdByIdManufacturedProduct(manufacturedProduct.getId()).getSellPrice();
-            if (manufacturedProduct.getManufacturedProductCategory().getFatherCategory() != null){
-                fatherCategoryId = manufacturedProduct.getManufacturedProductCategory().getFatherCategory().getId();
-            };
-            CartItemDTO cartItemDTO = new CartItemDTO(
-                    manufacturedProduct.getDenomination(),
-                    manufacturedProduct.getCookingTime(),
-                    fatherCategoryId,
-                    price,
-                    manufacturedProduct.getManufacturedProductCategory().getId()
-            );
-            cartItemDTO.setId(manufacturedProduct.getId());
-            cartItemDTOS.add(cartItemDTO);
-            fatherCategoryId = null;
-        }
-
-        for (Product product : products) {
-            if (product.getProductCategory().getFatherCategory() != null){
-                fatherCategoryId = product.getProductCategory().getFatherCategory().getId();
-            };
-            Double price = priceRepository.findPriceIdByIdProduct(product.getId()).getSellPrice();
-            CartItemDTO cartItemDTO = new CartItemDTO(
-                    product.getDenomination(),
-                    null,
-                    fatherCategoryId,
-                    price,
-                    product.getProductCategory().getId()
-            );
-            cartItemDTO.setId(product.getId());
-            cartItemDTOS.add(cartItemDTO);
-            fatherCategoryId=null;
-        }
-        return cartItemDTOS;
-    }
     @Override
     @Transactional(readOnly = true)
     public ItemListDTO getItemsList() {

@@ -8,7 +8,7 @@ import com.elbuensabor.api.entity.ItemPaymentMarket;
 import java.math.BigDecimal;
 
 public interface PaymentMarketService {
-    ItemPaymentMarketDTO savePreferenceID(OrderDTO dto, String preferenceId) throws Exception;
+    ItemPaymentMarketDTO savePreferenceID(OrderDTO dto) throws Exception;
     void cancelPayment(Long orderId) throws  Exception;
     Double refundPaymentWithAmount(Long orderId,Double amount) throws  Exception;
 

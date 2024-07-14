@@ -36,8 +36,6 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
 
     // @Value("${ACCESS_TOKEN}")
     private String accessToken = "TEST-7851658657870878-061113-737f43506bf13887aa8929e82a046f37-294926653";
-//    private static final String BASE_URL = "https://api.mercadopago.com/v1/payments/";
-
     @Autowired
     private IOrderRepository orderRepository;
     @Autowired
@@ -48,7 +46,7 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
 
     @Transactional
     @Override
-    public ItemPaymentMarketDTO savePreferenceID(OrderDTO dto ,String preferenceId)  throws Exception {
+    public ItemPaymentMarketDTO savePreferenceID(OrderDTO dto)  throws Exception {
         try {
             MercadoPagoConfig.setAccessToken(this.accessToken);
             List<PreferenceItemRequest> items = new ArrayList<>();
@@ -90,15 +88,9 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
                     .paymentMethods(paymentMethods)
                     .build();
             PreferenceClient client = new PreferenceClient();
-            Preference preference;
+            Preference preference = client.create(preferenceRequest);
             ItemPaymentMarket itemPaymentMarket;
-            if ( preferenceId != null && !preferenceId.trim().isEmpty()){
-                preference = client.update(preferenceId,preferenceRequest);
-                itemPaymentMarket =  itemPaymentMarketRepository.findItemPaymentMarketByPreferenceId(preferenceId);
-            }else {
-             preference = client.create(preferenceRequest);
-             itemPaymentMarket = new ItemPaymentMarket();
-            }
+            itemPaymentMarket = new ItemPaymentMarket();
             itemPaymentMarket.setPreferenceId(preference.getId());
             itemPaymentMarket.setOrder(orderRepository.findById(dto.getId())
                     .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + dto.getId())));
@@ -142,25 +134,11 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
     public void cancelPayment(Long orderId) throws Exception{
         try {
             ItemPaymentMarket itemPaymentMarket = itemPaymentMarketRepository.findItemPaymentMarketByOrderId(orderId);
-
- /*           String url = BASE_URL + paymentId;
-            OkHttpClient client = new OkHttpClient();
-            JsonObject requestBody = new JsonObject();
-            requestBody.addProperty("status", "cancelled");
-            MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, requestBody.toString());
-            Request request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Authorization", "Bearer " + accessToken)
-                    .addHeader("Content-Type", "application/json")
-                    .put(body)
-                    .build();
-            client.newCall(request).execute();*/
-            MercadoPagoConfig.setAccessToken(this.accessToken);
-            PaymentClient client = new PaymentClient();
-//            Payment paymentCancelled = client.cancel(paymentId);
-            client.cancel(itemPaymentMarket.getPaymentID());
-
+            if (itemPaymentMarket.getPaymentID() != null){
+                MercadoPagoConfig.setAccessToken(this.accessToken);
+                PaymentClient client = new PaymentClient();
+                client.cancel(itemPaymentMarket.getPaymentID());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             throw  new Exception("Error cancelling payment: " + e.getMessage());
@@ -178,28 +156,6 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
     @Override
     public Double refundPaymentWithAmount(Long orderId, Double amount) throws Exception{
         ItemPaymentMarket itemPaymentMarket = itemPaymentMarketRepository.findItemPaymentMarketByOrderId(orderId);
-      /*  OkHttpClient client = new OkHttpClient();
-        try {
-            String url = BASE_URL + paymentId + "/refunds";
-            String idempotencyKey = UUID.randomUUID().toString();
-
-            JsonObject requestBody = new JsonObject();
-            if (amount != null) {
-                requestBody.addProperty("amount", amount);
-            }
-
-            MediaType mediaType = MediaType.parse("application/json");
-            RequestBody body = RequestBody.create(mediaType, requestBody.toString());
-            Request request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Authorization", "Bearer " + accessToken)
-                    .addHeader("Content-Type", "application/json")
-                    .addHeader("X-Idempotency-Key", idempotencyKey)
-                    .post(body)
-                    .build();
-
-            client.newCall(request).execute();*/
-
         MercadoPagoConfig.setAccessToken(this.accessToken);
         try{
           PaymentRefundClient client = new PaymentRefundClient();

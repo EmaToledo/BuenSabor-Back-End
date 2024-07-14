@@ -93,42 +93,7 @@ public class OrderDetailsImpl  extends GenericServiceImpl<OrderDetail, OrderDeta
         }
     }
 
-    @Transactional
-    @Override
-    public List<OrderDetail> updateOrderDetails(List<OrderDetailDTO> listDto, Order order) throws Exception {
-        try {
-            List<OrderDetail> updatedOrderDetailList = new ArrayList<>();
 
-            for (OrderDetailDTO orderDetailDTO : listDto) {
-                OrderDetail orderDetail;
-                // Si el detalle de la orden ya existe, lo obtenemos del repositorio
-                if (orderDetailDTO.getId() != null && orderDetailRepository.existsById(orderDetailDTO.getId())) {
-                    orderDetail = orderDetailRepository.findById(orderDetailDTO.getId())
-                            .orElseThrow(() -> new Exception("Order detail not found"));
-                } else {
-                    // Si no existe, creamos uno nuevo
-                    orderDetail = new OrderDetail();
-                }
-                // Actualizamos las propiedades del detalle de la orden
-                orderDetail.setQuantity(orderDetailDTO.getQuantity());
-                orderDetail.setSubtotal(orderDetailDTO.getSubtotal());
-
-                if (orderDetailDTO.getItemProduct() != null && productRepository.existsById(orderDetailDTO.getItemProduct().getId())) {
-                    orderDetail.setProduct(productMapper.toEntity(orderDetailDTO.getItemProduct()));
-                }
-
-                if (orderDetailDTO.getItemManufacturedProduct() != null && manufacturedProductRepository.existsById(orderDetailDTO.getItemManufacturedProduct().getId())) {
-                    orderDetail.setManufacturedProduct(manufacturedProductMapper.toEntity(orderDetailDTO.getItemManufacturedProduct()));
-                }
-
-                orderDetail.setOrder(order);
-                updatedOrderDetailList.add(orderDetail);
-            }
-            return  orderDetailRepository.saveAll(updatedOrderDetailList);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
 
 
 

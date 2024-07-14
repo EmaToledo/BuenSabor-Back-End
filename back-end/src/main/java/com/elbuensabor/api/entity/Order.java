@@ -29,6 +29,15 @@ public class Order  extends GenericEntity {
 
     @Column(name = "total")
     private Double total;
+    
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "apartment")
+    private String apartment;
+
+    @Column(name = "phone")
+    private String phone;
 
     @Column(name = "estimated_time")
     private Time estimatedTime;

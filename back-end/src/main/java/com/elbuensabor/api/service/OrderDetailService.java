@@ -12,6 +12,6 @@ public interface OrderDetailService  extends GenericService<OrderDetail, OrderDe
 
 
     List<OrderDetail> saveOrderDetails(List<OrderDetailDTO> dto , Order order) throws Exception;
-    List<OrderDetail> updateOrderDetails(List<OrderDetailDTO> dto , Order order) throws Exception;
+
     List<OrderDetailDTO> mapperToDtoListComplete(List<OrderDetail> orderDetailList) throws Exception ;
 }

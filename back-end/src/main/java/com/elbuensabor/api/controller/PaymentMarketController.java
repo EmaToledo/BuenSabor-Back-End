@@ -32,28 +32,13 @@ public class PaymentMarketController {
     @PostMapping("/preference/create")
     public ResponseEntity<?> createPreference(@RequestBody OrderDTO dto) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(paymentMarketService.savePreferenceID(dto,null));
+            return ResponseEntity.status(HttpStatus.OK).body(paymentMarketService.savePreferenceID(dto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
     }
 
-    /**
-     * Edita una Preferencia.
-     * URL: http://localhost:4000/api/payment/preference/update/{preferenceId}
-     *
-     * @param dto dto de Order para crear un Preferencia en Mercado Pago
-     * @return ResponseEntity con la preferencia guardada en el cuerpo de la respuesta.
-     * HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
-     */
-    @PutMapping("/preference/update/{preferenceId}")
-    public ResponseEntity<?> updatePreference(@RequestBody OrderDTO dto,@PathVariable String preferenceId) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(paymentMarketService.savePreferenceID(dto,preferenceId));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
-        }
-    }
+
 
     /**
      * Edita una el atributo Paid de Order y el atributo paymentID de ItemPaymentMarket.

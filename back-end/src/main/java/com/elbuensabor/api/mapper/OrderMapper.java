@@ -16,9 +16,6 @@ public interface OrderMapper extends GenericMapper<Order, OrderDTO>{
         return Mappers.getMapper(OrderMapper.class);
     }
 
-    @Mapping(source = "user.address", target = "address")
-    @Mapping(source = "user.apartment", target = "apartment")
-    @Mapping(source = "user.phone", target = "phone")
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "user.name", target = "userName")
     @Mapping(source = "user.lastName", target = "userLastName")
