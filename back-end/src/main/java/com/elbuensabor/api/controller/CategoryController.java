@@ -192,12 +192,12 @@ public class CategoryController extends GenericControllerImpl<Category, Category
 
     /**
      * Obtiene todas las categorías de Producto y Producto Manufacturados que sean Padres Unicos y que esten disponibles.
-     * URL: http://localhost:4000/api/categories/filter/catalogue
+     * URL: http://localhost:4000/api/categories/public/filter/catalogue
      *
      * @return ResponseEntity con la lista de categorías de Producto y Producto Manufacturados en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @GetMapping("/filter/catalogue")
+    @GetMapping("/public/filter/catalogue")
     public ResponseEntity<?> findProductAndManufacturedProductCategories() {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.findProductAndManufacturedProductCategories());

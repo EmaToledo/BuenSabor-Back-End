@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Arrays;
 
 @Configuration
@@ -31,20 +30,25 @@ public class SecurityConfiguration {
     private String issuer;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeRequests()
-                .requestMatchers(HttpMethod.OPTIONS).permitAll() // Permitir peticiones OPTIONS sin autenticación
-                .requestMatchers("/api/public/**").permitAll() // Permitir acceso público a la ruta /api/public
-                .requestMatchers("/**").authenticated() // Requiere autenticación para cualquier otra ruta
-                .anyRequest().authenticated()
-                .and().cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configurar CORS
-                .oauth2ResourceServer((oauth2ResourceServer) ->
-                        oauth2ResourceServer.jwt((jwt) -> jwt
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll() // Permitir peticiones OPTIONS sin autenticación
+                        .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // Permitir acceso público a la ruta /api/public
+                        .requestMatchers(HttpMethod.GET, "/api/categories/public/filter/catalogue").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/sell/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/manufactured-products/sell/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/order/public/items").permitAll()
+                        .anyRequest().authenticated() // Requiere autenticación para cualquier otra ruta
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configurar CORS
+                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+                        .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 );
-        return httpSecurity.build();
+
+        return http.build();
     }
 
     @Bean

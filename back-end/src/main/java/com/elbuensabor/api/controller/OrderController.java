@@ -121,11 +121,11 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
 
     /**
      * trae una lista de ItemsDTO
-     * URL: http://localhost:4000/api/order/items
+     * URL: http://localhost:4000/api/order/public/items
      * @return ResponseEntity con la lista de ItemsDTO en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @GetMapping("/items")
+    @GetMapping("/public/items")
     public ResponseEntity<?> getItemsList() {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.getItemsList());
