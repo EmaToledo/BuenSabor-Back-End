@@ -53,9 +53,7 @@ public class RoleServiceImpl extends GenericServiceImpl<Role, RoleDTO, Long> imp
             e.printStackTrace();
             return null;
         }
-    };
-
-
+    }
 
 
 }

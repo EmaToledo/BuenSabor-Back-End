@@ -8,6 +8,7 @@ import com.elbuensabor.api.mapper.ManufacturedProductMapper;
 import com.elbuensabor.api.repository.ICategoryRepository;
 import com.elbuensabor.api.repository.IManufacturedProductRepository;
 import com.elbuensabor.api.service.ManufacturedProductService;
+import com.elbuensabor.api.service.PriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,8 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
 
     @Autowired
     private IManufacturedProductRepository manufacturedProductRepository;
+    @Autowired
+    private PriceService priceService;
     @Autowired
     private ICategoryRepository categoryRepository;
 
@@ -44,10 +47,10 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     public ManufacturedProduct saveManufacturedProduct(ManufacturedProductDTO dto) throws Exception {
         try {
             ManufacturedProduct manufacturedProduct = manufacturedProductMapper.toEntity(dto);
-
             setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
-
-            return manufacturedProductRepository.save(manufacturedProduct);
+            manufacturedProductRepository.save(manufacturedProduct);
+            priceService.savePrice(dto.getPrice(),getLastManufacturedProductId(),2);
+            return manufacturedProduct;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -68,9 +71,8 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
         try {
             ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(id)
                     .orElseThrow(() -> new Exception("El producto manufacturado a actualizar no existe."));
-
+            priceService.savePrice(dto.getPrice(),id,2);
             setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
-
             manufacturedProduct.setDenomination(dto.getDenomination());
             manufacturedProduct.setDescription(dto.getDescription());
             manufacturedProduct.setCookingTime(dto.getCookingTime());
@@ -143,12 +145,34 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     @Transactional
     public Long getLastManufacturedProductId() throws Exception {
         try {
-            Long lastID = manufacturedProductRepository.findLastManufacturedProductId();
-
-            return lastID;
+            return manufacturedProductRepository.findLastManufacturedProductId();
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
+    @Override
+    @Transactional
+    public ManufacturedProductDTO getManufacturedProductComplete(Long id) throws Exception {
+        try {
+            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found"))) ;
+            dto.setPrice(priceService.getPricebyIdFilter(id,2));
+            return dto;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public ManufacturedProductDTO getManufacturedProductOnlySellPrice(Long id) throws Exception {
+        try {
+            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found"))) ;
+            dto.setPrice(priceService.getOnlySellPrice(id,2));
+            return dto;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 
 }

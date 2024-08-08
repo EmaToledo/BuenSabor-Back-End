@@ -13,5 +13,6 @@ public class ProductDTO extends GenericDTO {
     private Long minStock;
     private Long actualStock;
     private Long productCategoryID;
+    private PriceDTO price;
 
 }

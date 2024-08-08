@@ -8,4 +8,5 @@ public interface RoleService extends GenericService<Role, RoleDTO, Long> {
     Auth0RoleDTO[] getUserRolesAuth0(String userId) throws Exception;
 
 
+
 }

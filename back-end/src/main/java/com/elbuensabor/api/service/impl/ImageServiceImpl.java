@@ -12,23 +12,25 @@ import com.elbuensabor.api.repository.IManufacturedProductRepository;
 import com.elbuensabor.api.repository.IProductRepository;
 import com.elbuensabor.api.repository.IUserRepository;
 import com.elbuensabor.api.service.ImageService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Base64;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
 public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> implements ImageService {
 
-    private final String IMAGE_UPLOAD_PATH = "C:/imagenes_proyecto/uploads";
-
+   private final String IMAGE_UPLOAD_PATH = "C:/imagenes_proyecto/uploads";
+//   @Value("${user.dir}")
+//    private  String IMAGE_UPLOAD_PATH;
     @Autowired
     private IImageRepository imageRepository;
 
@@ -49,20 +51,22 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
 
     @Override
     @Transactional
-    public Image saveImageFile(ImageDTO dto, MultipartFile imageFile) throws Exception {
+    public Image saveImageFile(Long filter,Long id, MultipartFile imageFile) throws Exception {
 
         try {
 
-            String fileName = changeFileName(imageFile.getOriginalFilename(), dto);
-            String filePath = changeFilePath(fileName, dto);
+            String fileName = changeFileName(imageFile.getOriginalFilename(), filter);
+            String filePath = changeFilePath(fileName, filter);
+            String base64 = convertMultipartFileToBase64(imageFile);
 
             // creacion de la entidad imagen a guardar
-            Image image = imageMapper.toEntity(dto);
+            Image image = new Image();
 
             // setting de atributos
-            setIdRelationsIfExists(dto, image);
+            setIdRelationsIfExists(filter,id, image);
             image.setName(fileName);
             image.setRoute(filePath);
+            image.setBase64(base64);
 
             File localImageFile = new File(filePath);
             imageFile.transferTo(localImageFile);
@@ -82,28 +86,30 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
 
     @Override
     @Transactional
-    public Image replaceImage(Long id, ImageDTO dto, MultipartFile newImage) throws Exception {
+    public Image replaceImage(Long idImage, Long filter,Long idFilter, MultipartFile newImage) throws Exception {
         try {
-            Image existingImage = imageRepository.findById(id).orElseThrow(() -> new Exception("La imagen a actualizar no existe."));
+            Image existingImage = imageRepository.findById(idImage).orElseThrow(() -> new Exception("La imagen a actualizar no existe."));
 
             String existingFilePath = existingImage.getRoute();
 
-            String fileName = changeFileName(newImage.getOriginalFilename(), dto);
-            String newFilePath = IMAGE_UPLOAD_PATH + File.separator + fileName;
+            String fileName = changeFileName(newImage.getOriginalFilename(), filter);
+            String newFilePath = changeFilePath(fileName, filter);
+            String base64 = convertMultipartFileToBase64(newImage);
 
             File existingImageFile = new File(existingFilePath);
 
             if (existingImageFile.delete()) {
                 File localImageFile = new File(newFilePath);
 
-                existingImage = imageMapper.toEntity(dto);
+                existingImage = new Image();
 
                 // setting de atributos
-                existingImage.setId(id);
+                existingImage.setId(idImage);
                 existingImage.setName(fileName);
                 existingImage.setRoute(newFilePath);
+                existingImage.setBase64(base64);
 
-                setIdRelationsIfExists(dto, existingImage);
+                setIdRelationsIfExists(filter,idFilter, existingImage);
 
                 newImage.transferTo(localImageFile);
                 convertImageType(localImageFile);
@@ -159,17 +165,19 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
-    private String changeFileName(String fileName, ImageDTO dto) throws Exception {
+    private String changeFileName(String fileName, long filter) throws Exception {
 
         try {
             String newFileName = UUID.randomUUID().toString() + "_";
 
-            if (dto.getUserId() != null) {
+            if (filter == 1) {
                 newFileName += "user_" + fileName;
-            } else if (dto.getManufacturedProductId() != null) {
-                newFileName += "manufactured_" + fileName;
-            } else if (dto.getProductId() != null) {
+            } else if (filter == 2) {
                 newFileName += "product_" + fileName;
+            } else if (filter == 3) {
+                newFileName += "manufactured_" + fileName;
+            }else{
+                throw new Exception("filtro incorrecto");
             }
 
             newFileName = newFileName.replace(" ", "-");
@@ -183,17 +191,21 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
-    private String changeFilePath(String fileName, ImageDTO dto) throws Exception {
+    private String changeFilePath(String fileName, long filter) throws Exception {
 
         try {
             String newFilePath = IMAGE_UPLOAD_PATH;
-            if (dto.getUserId() != null) {
+
+            if (filter == 1) {
                 newFilePath += "/users";
-            } else if (dto.getManufacturedProductId() != null) {
-                newFilePath += "/manufactured_products";
-            } else if (dto.getProductId() != null) {
+            } else if (filter == 2) {
                 newFilePath += "/products";
+            } else if (filter == 3) {
+                newFilePath += "/manufactured_products";
+            } else {
+                throw new Exception("filtro incorrecto");
             }
+
 
             // Verificar si la ruta existe, si no, crearla
             File directory = new File(newFilePath);
@@ -209,24 +221,41 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
-    private void setIdRelationsIfExists(ImageDTO dto, Image image) throws Exception {
-        try {
-            Long productId = dto.getProductId();
-            Long manufacturedProductId = dto.getManufacturedProductId();
-            Long userId = dto.getUserId();
+    @Override
+    @Transactional(readOnly = true)
+    public ImageDTO getImageIdbyFilter(Long idFilter , String filter) {
+        if (idFilter != null && !filter.isEmpty()) {
+            Image image = null;
+            if (filter.equals("p")) {
+                image = imageRepository.findImageIdByIdProduct(idFilter);
+            } else if (filter.equals("u")) {
+                image = imageRepository.findImageIdByIdUser(idFilter);
+            } else if (filter.equals("mp")) {
+                image = imageRepository.findImageIdByIdManufacturedProduct(idFilter);
+            }
 
-            if (productId != null && (manufacturedProductId == null && userId == null)) {
-                Product product = productRepository.findById(productId).orElseThrow(() -> new Exception("El producto con id " + productId + " no existe"));
+            if (image != null) {
+                return imageMapper.toDTO(image);
+            }
+        }
+        return null;
+    }
+
+    private void setIdRelationsIfExists(long filter,long id, Image image) throws Exception {
+        try {
+
+            if (filter == 2) {
+                Product product = productRepository.findById(id).orElseThrow(() -> new Exception("El producto con id " + id + " no existe"));
                 image.setIdProduct(product);
                 image.setIdManufacturedProduct(null);
                 image.setIdUser(null);
-            } else if (manufacturedProductId != null && (productId == null && userId == null)) {
-                ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(manufacturedProductId).orElseThrow(() -> new Exception("El producto manufacturado con id " + manufacturedProductId + " no existe"));
+            } else if (filter == 3) {
+                ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("El producto manufacturado con id " + id + " no existe"));
                 image.setIdManufacturedProduct(manufacturedProduct);
                 image.setIdProduct(null);
                 image.setIdUser(null);
-            } else if (userId != null && (productId == null && manufacturedProductId == null)) {
-                User user = userRepository.findById(userId).orElseThrow(() -> new Exception("El usuario con id " + userId + " no existe"));
+            } else if (filter == 1) {
+                User user = userRepository.findById(id).orElseThrow(() -> new Exception("El usuario con id " + id + " no existe"));
                 image.setIdUser(user);
                 image.setIdProduct(null);
                 image.setIdManufacturedProduct(null);
@@ -237,6 +266,14 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
             throw new Exception(e.getMessage());
         }
 
+    }
+
+    public String convertMultipartFileToBase64(MultipartFile file) throws Exception {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("El archivo es nulo o está vacío.");
+        }
+        byte[] bytes = file.getBytes();
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
 }

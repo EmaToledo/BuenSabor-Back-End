@@ -1,16 +1,11 @@
 package com.elbuensabor.api.service.impl;
-import com.elbuensabor.api.dto.AddressDTO;
-import com.elbuensabor.api.dto.Auth0UserDTO;
-import com.elbuensabor.api.dto.PhoneDTO;
-import com.elbuensabor.api.dto.UserDTO;
+import com.elbuensabor.api.dto.*;
 import com.elbuensabor.api.entity.Role;
 import com.elbuensabor.api.entity.User;
 import com.elbuensabor.api.mapper.GenericMapper;
 import com.elbuensabor.api.mapper.UserMapper;
 import com.elbuensabor.api.repository.IUserRepository;
-import com.elbuensabor.api.service.AddressService;
 import com.elbuensabor.api.service.Auth0TokenService;
-import com.elbuensabor.api.service.PhoneService;
 import com.elbuensabor.api.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+
 
 @Service
 public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> implements UserService {
@@ -33,10 +28,6 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
     private IUserRepository userRepository;
     @Autowired
     private Auth0TokenService serviceToken;
-    @Autowired
-    private PhoneService servicePhone;
-    @Autowired
-    private AddressService serviceAddress;
 
     private final UserMapper userMapper = UserMapper.getInstance();
 
@@ -84,32 +75,6 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
         }
     };
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public User saveUserComplete(UserDTO dto) {
-        try {
-            User user = userMapper.toEntity(dto);
-            userRepository.save(user);
-            user.setId(getLastUserId());
-            if (dto.getPhones() != null) {
-                for (PhoneDTO phoneDTO : dto.getPhones()) {
-                    servicePhone.savePhone(phoneDTO,user);
-                }
-            }
-            if (dto.getAddresses() != null) {
-                for (AddressDTO addressDTO : dto.getAddresses()) {
-                    serviceAddress.saveAddress(addressDTO,user);
-                }
-            }
-
-
-            return assignUserToRole(user.getIdAuth0User(),user.getRole());
-        } catch (Exception e) {
-            System.out.println("Error creating new user: " + e);
-            e.printStackTrace();
-            throw new RuntimeException("Error al guardar el usuario completo", e);
-        }
-    }
 
 
     @Override
@@ -322,19 +287,6 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
     public boolean checkEmailExists(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
-    public UserDTO getUserDTOWithPhonesAndAddresses(String userId) throws Exception {
-        try {
-            User user = userRepository.findByIdAuth0User(userId).orElseThrow(() -> new Exception("User not found"));
-            List<PhoneDTO> phoneDTOs = servicePhone.getPhoneDTOsByUserId(user);
-            List<AddressDTO> addressDTOs = serviceAddress.getAddressDTOsByUserId(user);
-            UserDTO userDTO = UserMapper.getInstance().toDTO(user);
-            userDTO.setPhones(phoneDTOs);
-            userDTO.setAddresses(addressDTOs);
-            return userDTO;
-        }catch (Exception e){
-            throw  new Exception(e.getMessage());
-        }
-    }
 
 
     @Transactional(readOnly = true)
@@ -346,4 +298,53 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Role getUserRolByAuth0Id(String userId) throws Exception {
+        try {
+            User user = userRepository.findByIdAuth0User(userId).orElseThrow(() -> new Exception("User not found"));
+            return user.getRole();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public UserDTO getUserbyAuth0Id(String userId) throws Exception {
+        try {
+            User user = userRepository.findByIdAuth0User(userId).orElseThrow(() -> new Exception("User not found"));
+            return userMapper.toDTO(user);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public String updateUserPicture(String id ,String picture) {
+        try {
+            String token = serviceToken.getAuth0Token();
+            String encodedUserId = URLEncoder.encode(id, StandardCharsets.UTF_8) .replaceAll("\\|", "%7C");
+            String url = "https://" + serviceToken.getDomain() + "/api/v2/users/" + encodedUserId;
+
+            OkHttpClient client = new OkHttpClient();
+            JsonObject requestBody = new JsonObject();
+            requestBody.addProperty("picture", picture);
+
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType, requestBody.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .patch(body)
+                    .addHeader("Authorization", "Bearer " + token)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            return response.body().string();
+
+        } catch (Exception e) {
+            System.out.println("Error update User picture Auth0 "+ e );
+            e.printStackTrace();
+            return null;
+        }
+    };
 }

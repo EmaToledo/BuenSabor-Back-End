@@ -41,22 +41,6 @@ public class UserController extends GenericControllerImpl<User, UserDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
-    /**
-     * Guarda un usuario completo(Andresss,Phone).
-     * URL: http://localhost:4000/api/users/saveUserComplete
-     *
-     * @param dto Objeto UserDTO que representa el usuario a guardar.
-     * @return ResponseEntity con el usuario guardado en el cuerpo de la respuesta.
-     *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
-     */
-    @PostMapping(value = "/saveUserComplete")
-    public ResponseEntity<?> save(@RequestBody UserDTO dto) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(service.saveUserComplete(dto));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
-        }
-    }
 
     /**
      * Bloquea un usuario.
@@ -228,17 +212,50 @@ public class UserController extends GenericControllerImpl<User, UserDTO> {
     }
 
     /**
-     * Obtiene un registro de la entidad User por su ID.
-     * URL: http://localhost:4000/api/users/complete/{id}
+     * Obtiene el role de la entidad User por su ID.
+     * URL: http://localhost:4000/api/users/role/{id}
      *
-     * @param id ID del usuario a buscar.
+     * @param id ID del usuario para buscar su rol.
+     * @return ResponseEntity con el role encontrado en el cuerpo de la respuesta.
+     *         HttpStatus OK si la operación se realiza correctamente, o NOT_FOUND si hay un error.
+     */
+    @GetMapping("/role/{id}")
+    public ResponseEntity<?> getRolUser(@PathVariable String id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.getUserRolByAuth0Id(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ERROR_MESSAGE);
+        }
+    }
+    /**
+     * Obtiene la entidad User por  ID Auth0.
+     * URL: http://localhost:4000/api/users/bd/{id}
+     *
+     * @param id ID (Auth0) del usuario para buscar.
      * @return ResponseEntity con el usuario encontrado en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o NOT_FOUND si hay un error.
      */
-    @GetMapping("/complete/{id}")
-    public ResponseEntity<?> getUserComplete(@PathVariable String id) {
+    @GetMapping("/bd/{id}")
+    public ResponseEntity<?> getUserbyAuth0IdFromBD(@PathVariable String id) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(service.getUserDTOWithPhonesAndAddresses(id));
+            return ResponseEntity.status(HttpStatus.OK).body(service.getUserbyAuth0Id(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Edita la Imgaten el  User por su ID.
+     * URL: http://localhost:4000/api/users/picture/{id}
+     *
+     * @param id ID del usuario a buscar.
+     * @return ResponseEntity con el usuario encontrado y editado en el cuerpo de la respuesta.
+     *         HttpStatus OK si la operación se realiza correctamente, o NOT_FOUND si hay un error.
+     */
+    @PatchMapping("/picture/{id}")
+    public ResponseEntity<?> updateUserPicture(@PathVariable String id,@RequestBody Map<String, String> requestBody) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.updateUserPicture(id,requestBody.get("picture")));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ERROR_MESSAGE);
         }

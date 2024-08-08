@@ -90,4 +90,30 @@ public class ProductController extends GenericControllerImpl<Product, ProductDTO
         }
     }
 
+    @GetMapping("/lastID")
+    public ResponseEntity<?> getLastProductId() {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getLastProductId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+    @GetMapping("/complete/{id}")
+    public ResponseEntity<?> getProductComplete(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getProductComplete(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+    @GetMapping("/sell/{id}")
+    public ResponseEntity<?> getProductOnlySellPrice(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getProductOnlySellPrice(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+
 }

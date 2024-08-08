@@ -8,12 +8,14 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ImageService extends GenericService<Image, ImageDTO, Long> {
 
     // Guarda una imagen
-    Image saveImageFile(ImageDTO dto, MultipartFile image) throws Exception;
+    Image saveImageFile(Long filter,Long id, MultipartFile image) throws Exception;
 
     // Reemplaza una imagen
-    Image replaceImage(Long id, ImageDTO dto, MultipartFile newImage) throws Exception;
+    Image replaceImage(Long idImage, Long filter,Long idFilter, MultipartFile newImage) throws Exception;
 
     // Elimina una imagen
     String deleteImageFile(Long id) throws Exception;
+
+    ImageDTO getImageIdbyFilter(Long id , String filter) throws Exception;
 
 }

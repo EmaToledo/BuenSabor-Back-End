@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = {RecipeStepMapper.class})
 public interface RecipeMapper extends GenericMapper<Recipe, RecipeDTO> {
 
     // Obtener una instancia del RecipeMapper
@@ -20,14 +20,17 @@ public interface RecipeMapper extends GenericMapper<Recipe, RecipeDTO> {
 
     // Mapea una entidad Recipe a un DTO RecipeDTO
     @Mapping(source = "manufacturedProduct.id", target = "manufacturedProductId")
+    @Mapping(ignore = true, target = "steps")
     RecipeDTO toDTO(Recipe source);
 
     // Mapea un DTO RecipeDTO a una entidad Recipe
     @Mapping(target = "manufacturedProduct", ignore = true)
     Recipe toEntity(RecipeDTO source);
 
+    @Mapping(source = "recipe.id", target = "recipeId")
     List<RecipeStepDTO> toDTOList(List<RecipeStep> source);
 
+    @Mapping(target = "recipe.id", source = "recipeId")
     List<RecipeStep> toEntityList(List<RecipeStepDTO> source);
 
 }

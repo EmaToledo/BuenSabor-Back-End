@@ -2,6 +2,7 @@ package com.elbuensabor.api.mapper;
 
 import com.elbuensabor.api.dto.ManufacturedProductDTO;
 import com.elbuensabor.api.entity.ManufacturedProduct;
+import com.elbuensabor.api.service.ManufacturedProductService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -16,6 +17,7 @@ public interface ManufacturedProductMapper extends GenericMapper<ManufacturedPro
 
     // Convierte un objeto ManufacturedProduct en un objeto ManufacturedProductDTO
     @Mapping(source = "manufacturedProductCategory.id", target = "manufacturedProductCategoryID")
+    @Mapping(target = "price", ignore = true)
     ManufacturedProductDTO toDTO(ManufacturedProduct manufacturedProduct);
 
     // Convierte un objeto ManufacturedProductDTO en un objeto ManufacturedProduct
@@ -23,3 +25,4 @@ public interface ManufacturedProductMapper extends GenericMapper<ManufacturedPro
     ManufacturedProduct toEntity(ManufacturedProductDTO manufacturedProductDTO);
 
 }
+
