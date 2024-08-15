@@ -21,6 +21,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +35,8 @@ import java.util.UUID;
 @Service
 public class PaymentMarketServiceImpl implements PaymentMarketService {
 
-    // @Value("${ACCESS_TOKEN}")
-    private String accessToken = "TEST-7851658657870878-061113-737f43506bf13887aa8929e82a046f37-294926653";
+    @Value("${MP_ACCESS_TOKEN}")
+    private String accessToken;
     @Autowired
     private IOrderRepository orderRepository;
     @Autowired

@@ -6,6 +6,7 @@ import com.elbuensabor.api.dto.*;
 import com.elbuensabor.api.entity.*;
 import com.elbuensabor.api.mapper.*;
 import com.elbuensabor.api.repository.*;
+import com.elbuensabor.api.service.BillService;
 import com.elbuensabor.api.service.OrderDetailService;
 import com.elbuensabor.api.service.OrderService;
 import com.elbuensabor.api.service.PaymentMarketService;
@@ -28,6 +29,8 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     private final ManufacturedProductMapper manufacturedProductMapper = ManufacturedProductMapper.getInstance();
     @Autowired
     private OrderDetailService orderDetailService;
+    @Autowired
+    private BillService billService;
     @Autowired
     private IOrderRepository orderRepository;
     @Autowired
@@ -160,6 +163,7 @@ if (order.getPaymentType().equals("mp")){
         paymentMarketService.cancelPayment(id);
     }
 }
+            billService.cancelBill(order.getId());
             order.setCanceled(true);
             order.setState(OrderStatus.CANCELED);
             return orderMapper.toDTO(orderRepository.save(order));

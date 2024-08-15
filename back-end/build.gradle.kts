@@ -17,6 +17,8 @@ repositories {
 
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-mail:3.3.1")
+	implementation("com.github.librepdf:openpdf:2.0.2")
 	implementation("com.mercadopago:sdk-java:2.1.24")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
@@ -38,6 +40,7 @@ dependencies {
 	testAnnotationProcessor ("org.projectlombok:lombok:1.18.30")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+
 }
 
 tasks.withType<Test> {
