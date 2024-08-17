@@ -12,25 +12,25 @@ import com.elbuensabor.api.repository.IManufacturedProductRepository;
 import com.elbuensabor.api.repository.IProductRepository;
 import com.elbuensabor.api.repository.IUserRepository;
 import com.elbuensabor.api.service.ImageService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Base64;
 
 import javax.imageio.ImageIO;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> implements ImageService {
 
-   private final String IMAGE_UPLOAD_PATH = "C:/imagenes_proyecto/uploads";
-//   @Value("${user.dir}")
-//    private  String IMAGE_UPLOAD_PATH;
     @Autowired
     private IImageRepository imageRepository;
 
@@ -45,28 +45,32 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
 
     private final ImageMapper imageMapper = ImageMapper.getInstance();
 
+    @Value("${IMAGE_UPLOAD_PATH}")
+    private String IMAGE_UPLOAD_PATH;
+    private static final char IMAGE_RELATION_TYPE_PRODUCT = 'P';
+    private static final char IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT = 'M';
+    private static final char IMAGE_RELATION_TYPE_USER = 'U';
+
     public ImageServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Image, Long> IGenericRepository, GenericMapper<Image, ImageDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
 
     @Override
     @Transactional
-    public Image saveImageFile(Long filter,Long id, MultipartFile imageFile) throws Exception {
+    public Image saveImageFile(Character relationType, Long relationId, MultipartFile imageFile) throws Exception {
 
         try {
 
-            String fileName = changeFileName(imageFile.getOriginalFilename(), filter);
-            String filePath = changeFilePath(fileName, filter);
-            String base64 = convertMultipartFileToBase64(imageFile);
+            String fileName = changeFileName(imageFile.getOriginalFilename(), relationType);
+            String filePath = changeFilePath(fileName, relationType);
 
             // creacion de la entidad imagen a guardar
             Image image = new Image();
 
             // setting de atributos
-            setIdRelationsIfExists(filter,id, image);
+            setIdRelationsIfExists(image, relationType, relationId);
             image.setName(fileName);
             image.setRoute(filePath);
-            image.setBase64(base64);
 
             File localImageFile = new File(filePath);
             imageFile.transferTo(localImageFile);
@@ -74,6 +78,7 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
             convertImageType(localImageFile);
 
             image.setType("image/jpg");
+            image.setRelationType(relationType);
             image.setSize((int) localImageFile.length());
 
             Image savedImage = imageRepository.save(image);
@@ -86,15 +91,19 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
 
     @Override
     @Transactional
-    public Image replaceImage(Long idImage, Long filter,Long idFilter, MultipartFile newImage) throws Exception {
+    public Image replaceImage(Long id, MultipartFile newImage) throws Exception {
         try {
-            Image existingImage = imageRepository.findById(idImage).orElseThrow(() -> new Exception("La imagen a actualizar no existe."));
+            Image existingImage = imageRepository.findById(id).orElseThrow(() -> new Exception("La imagen a actualizar no existe."));
 
             String existingFilePath = existingImage.getRoute();
+            Character existingRelationType = existingImage.getRelationType();
 
-            String fileName = changeFileName(newImage.getOriginalFilename(), filter);
-            String newFilePath = changeFilePath(fileName, filter);
-            String base64 = convertMultipartFileToBase64(newImage);
+            Long existingRelationId = existingRelationType.equals(IMAGE_RELATION_TYPE_USER) ? existingImage.getIdUser().getId()
+                    : existingRelationType.equals(IMAGE_RELATION_TYPE_PRODUCT) ? existingImage.getIdProduct().getId()
+                    : existingRelationType.equals(IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT) ? existingImage.getIdManufacturedProduct().getId() : null;
+
+            String fileName = changeFileName(newImage.getOriginalFilename(), existingRelationType);
+            String newFilePath = changeFilePath(fileName, existingRelationType);
 
             File existingImageFile = new File(existingFilePath);
 
@@ -104,17 +113,17 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
                 existingImage = new Image();
 
                 // setting de atributos
-                existingImage.setId(idImage);
+                existingImage.setId(id);
                 existingImage.setName(fileName);
                 existingImage.setRoute(newFilePath);
-                existingImage.setBase64(base64);
 
-                setIdRelationsIfExists(filter,idFilter, existingImage);
+                setIdRelationsIfExists(existingImage, existingRelationType, existingRelationId);
 
                 newImage.transferTo(localImageFile);
                 convertImageType(localImageFile);
 
                 existingImage.setType("image/jpg");
+                existingImage.setRelationType(existingRelationType);
                 existingImage.setSize((int) localImageFile.length());
 
                 Image updatedImage = imageRepository.save(existingImage);
@@ -148,6 +157,62 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ImageDTO> findImagesByType(Character imageType) {
+        List<Image> images;
+
+        switch (imageType) {
+            case IMAGE_RELATION_TYPE_USER:
+                images = imageRepository.findUserImages();
+                break;
+            case IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT:
+                images = imageRepository.findManufacturedProductImages();
+                break;
+            case IMAGE_RELATION_TYPE_PRODUCT:
+                images = imageRepository.findProductImages();
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de imagen invalido " + imageType);
+        }
+
+        return imageMapper.toDTOsList(images);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ImageDTO findImageIdByType(Long relationId, Character relationType) {
+
+        if (relationId != null && relationType != null) {
+
+            Image image;
+
+            switch (relationType) {
+                case IMAGE_RELATION_TYPE_USER:
+                    image = imageRepository.findImageByIdFromUsers(relationId);
+                    break;
+                case IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT:
+                    image = imageRepository.findImageByIdFromManufacturedProducts(relationId);
+                    System.out.println("se encontro imagen: " + image.getName());
+                    break;
+                case IMAGE_RELATION_TYPE_PRODUCT:
+                    image = imageRepository.findImageByIdFromProducts(relationId);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Tipo de imagen invalido " + relationType);
+            }
+
+            if(image != null) {
+                return imageMapper.toDTO(image);
+            } else {
+                throw new EntityNotFoundException("No se encontro la imagen");
+            }
+        }else {
+            throw new IllegalArgumentException("Los parametros no pueden ser nulos");
+        }
+    }
+
     public void convertImageType(File localImageFile) throws Exception {
         try {
             BufferedImage bufferedImage = ImageIO.read(localImageFile);
@@ -165,19 +230,43 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
-    private String changeFileName(String fileName, long filter) throws Exception {
+    private void setIdRelationsIfExists(Image image, Character relationType, Long relationId) throws Exception {
+        try {
+            if (relationType.equals(IMAGE_RELATION_TYPE_PRODUCT)) {
+                Product product = productRepository.findById(relationId).orElseThrow(() -> new Exception("El producto con id " + relationId + " no existe"));
+                image.setIdProduct(product);
+                image.setIdManufacturedProduct(null);
+                image.setIdUser(null);
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT)) {
+                ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(relationId).orElseThrow(() -> new Exception("El producto manufacturado con id " + relationId + " no existe"));
+                image.setIdManufacturedProduct(manufacturedProduct);
+                image.setIdProduct(null);
+                image.setIdUser(null);
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_USER)) {
+                User user = userRepository.findById(relationId).orElseThrow(() -> new Exception("El usuario con id " + relationId + " no existe"));
+                image.setIdUser(user);
+                image.setIdProduct(null);
+                image.setIdManufacturedProduct(null);
+            } else {
+                throw new Exception("Error al relacionar la imagen con un producto, manufacturado o usuario");
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+
+    }
+
+    private String changeFileName(String fileName, Character relationType) throws Exception {
 
         try {
             String newFileName = UUID.randomUUID().toString() + "_";
 
-            if (filter == 1) {
+            if (relationType.equals(IMAGE_RELATION_TYPE_USER)) {
                 newFileName += "user_" + fileName;
-            } else if (filter == 2) {
-                newFileName += "product_" + fileName;
-            } else if (filter == 3) {
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT)) {
                 newFileName += "manufactured_" + fileName;
-            }else{
-                throw new Exception("filtro incorrecto");
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_PRODUCT)) {
+                newFileName += "product_" + fileName;
             }
 
             newFileName = newFileName.replace(" ", "-");
@@ -191,21 +280,17 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         }
     }
 
-    private String changeFilePath(String fileName, long filter) throws Exception {
+    private String changeFilePath(String fileName, Character relationType) throws Exception {
 
         try {
-            String newFilePath = IMAGE_UPLOAD_PATH;
-
-            if (filter == 1) {
+            String newFilePath = Paths.get(IMAGE_UPLOAD_PATH).toAbsolutePath().normalize().toString();
+            if (relationType.equals(IMAGE_RELATION_TYPE_USER)) {
                 newFilePath += "/users";
-            } else if (filter == 2) {
-                newFilePath += "/products";
-            } else if (filter == 3) {
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT)) {
                 newFilePath += "/manufactured_products";
-            } else {
-                throw new Exception("filtro incorrecto");
+            } else if (relationType.equals(IMAGE_RELATION_TYPE_PRODUCT)) {
+                newFilePath += "/products";
             }
-
 
             // Verificar si la ruta existe, si no, crearla
             File directory = new File(newFilePath);
@@ -219,61 +304,6 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ImageDTO getImageIdbyFilter(Long idFilter , String filter) {
-        if (idFilter != null && !filter.isEmpty()) {
-            Image image = null;
-            if (filter.equals("p")) {
-                image = imageRepository.findImageIdByIdProduct(idFilter);
-            } else if (filter.equals("u")) {
-                image = imageRepository.findImageIdByIdUser(idFilter);
-            } else if (filter.equals("mp")) {
-                image = imageRepository.findImageIdByIdManufacturedProduct(idFilter);
-            }
-
-            if (image != null) {
-                return imageMapper.toDTO(image);
-            }
-        }
-        return null;
-    }
-
-    private void setIdRelationsIfExists(long filter,long id, Image image) throws Exception {
-        try {
-
-            if (filter == 2) {
-                Product product = productRepository.findById(id).orElseThrow(() -> new Exception("El producto con id " + id + " no existe"));
-                image.setIdProduct(product);
-                image.setIdManufacturedProduct(null);
-                image.setIdUser(null);
-            } else if (filter == 3) {
-                ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("El producto manufacturado con id " + id + " no existe"));
-                image.setIdManufacturedProduct(manufacturedProduct);
-                image.setIdProduct(null);
-                image.setIdUser(null);
-            } else if (filter == 1) {
-                User user = userRepository.findById(id).orElseThrow(() -> new Exception("El usuario con id " + id + " no existe"));
-                image.setIdUser(user);
-                image.setIdProduct(null);
-                image.setIdManufacturedProduct(null);
-            } else {
-                throw new Exception("Error al relacionar la imagen con un producto, manufacturado o usuario");
-            }
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-
-    }
-
-    public String convertMultipartFileToBase64(MultipartFile file) throws Exception {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("El archivo es nulo o está vacío.");
-        }
-        byte[] bytes = file.getBytes();
-        return Base64.getEncoder().encodeToString(bytes);
     }
 
 }

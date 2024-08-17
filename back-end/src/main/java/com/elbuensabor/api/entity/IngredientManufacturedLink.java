@@ -8,25 +8,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "recipe")
+@Table(name = "ingredient_manufactured_link")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@AttributeOverride(name = "id", column = @Column(name = "id_recipe"))
-public class Recipe extends GenericEntity {
-
-    @Column(name = "denomination")
-    private String denomination;
-
-    @Column(name = "description")
-    private String description;
+@AttributeOverride(name = "id", column = @Column(name = "id_ingredient_manufactured_link"))
+public class IngredientManufacturedLink extends GenericEntity {
 
     @ManyToOne
     @JoinColumn(name = "idManufacturedProduct")
     @JsonBackReference
     private ManufacturedProduct manufacturedProduct;
 
-
-
+    @ManyToOne
+    @JoinColumn(name = "idIngredient")
+    @JsonBackReference
+    private Ingredient ingredient;
 }

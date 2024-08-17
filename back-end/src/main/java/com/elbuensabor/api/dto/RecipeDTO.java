@@ -13,5 +13,6 @@ public class RecipeDTO extends GenericDTO {
     private String description;
     private Long manufacturedProductId;
     private List<RecipeStepDTO> steps;
+    private List<IngredientDTO> ingredients;
 
 }

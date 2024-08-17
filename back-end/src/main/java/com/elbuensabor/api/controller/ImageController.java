@@ -24,25 +24,25 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
      * Guarda una imagen.
      * URL: http://localhost:4000/api/images/save
      *
-     * @param filter  filtro para saber si la imagen es de user,product o Manufactured product
-     * @param id   del user,product o Manufactured product relacionado a la imagen
-     * @param imageFile MultipartFile imageFile que representa la imagen a guardar.
+     * @param relationType Character representa el tipo de relacion que tendra la imagen: usuario, product, manufacturado.
+     * @param relationId   Long representa el id al cual esta relacionada la imagen.
+     * @param imageFile    MultipartFile imageFile que representa la imagen a guardar.
      * @return ResponseEntity con la image guardada en el cuerpo de la respuesta.
      * HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @PostMapping(value = "/save-image/{filter}/{id}")
-    public ResponseEntity<?> saveImage(@PathVariable Long id,@PathVariable Long filter,@RequestParam("imageFile") MultipartFile imageFile) {
+    @PostMapping(value = "/save-image")
+    public ResponseEntity<?> saveImage(@RequestParam Character relationType, @RequestParam Long relationId, @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(imageService.saveImageFile(filter,id, imageFile));
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.saveImageFile(relationType, relationId, imageFile));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
     }
 
-    @PostMapping(value = "/replace-image/{filter}/{idFilter}/{idImage}")
-    public ResponseEntity<?> replaceImage(@PathVariable Long idImage,@PathVariable Long filter,@PathVariable Long idFilter, @RequestParam("imageFile") MultipartFile imageFile) {
+    @PostMapping(value = "/replace-image/{id}")
+    public ResponseEntity<?> replaceImage(@PathVariable Long id, @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(imageService.replaceImage(idImage,filter,idFilter,imageFile));
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.replaceImage(id, imageFile));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
@@ -56,10 +56,20 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }
     }
-    @GetMapping(value = "/{filter}/{id}")
-    public ResponseEntity<?> getImageByIdFilter(@PathVariable Long id,@PathVariable String filter) {
+
+    @GetMapping(value = "/filter/{relationType}")
+    public ResponseEntity<?> findImagesByType(@PathVariable Character relationType) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(imageService.getImageIdbyFilter(id,filter));
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.findImagesByType(relationType));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/filter/{relationType}/{id}")
+    public ResponseEntity<?> findImagesIdByType(@PathVariable Long id, @PathVariable Character relationType) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.findImageIdByType(id, relationType));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE + e.getMessage());
         }

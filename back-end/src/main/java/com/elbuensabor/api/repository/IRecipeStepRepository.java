@@ -12,3 +12,4 @@ public interface IRecipeStepRepository extends IGenericRepository<RecipeStep, Lo
     List<RecipeStep> findStepsByRecipeId(Long recipeId);
 
 }
+

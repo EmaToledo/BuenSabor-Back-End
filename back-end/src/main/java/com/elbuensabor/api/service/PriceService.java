@@ -1,9 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dto.ImageDTO;
-import com.elbuensabor.api.dto.ManufacturedProductDTO;
 import com.elbuensabor.api.dto.PriceDTO;
-import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.entity.Price;
 
 public interface PriceService extends GenericService<Price, PriceDTO, Long>{

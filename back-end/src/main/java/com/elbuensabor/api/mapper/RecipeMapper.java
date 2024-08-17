@@ -34,3 +34,4 @@ public interface RecipeMapper extends GenericMapper<Recipe, RecipeDTO> {
     List<RecipeStep> toEntityList(List<RecipeStepDTO> source);
 
 }
+
