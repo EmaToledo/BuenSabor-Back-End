@@ -22,13 +22,14 @@ public class Image extends GenericEntity {
     @Column(name = "route")
     private String route;
 
-    @Column(name = "type")
+    @Column(name = "imageType")
     private String type;
+
+    @Column(name = "relationType")
+    private Character relationType;
 
     @Column(name = "size")
     private Integer size;
-    @Column(name = "base64", columnDefinition = "MEDIUMTEXT")
-    private String base64;
 
     @ManyToOne
     @JoinColumn(name = "idProduct")
