@@ -54,7 +54,7 @@ public class BillServiceImpl extends GenericServiceImpl<Bill, BillDTO, Long> imp
             bill = billRepository.save(bill);
             String pdf = pdfService.createPDF(bill);
             bill.setPdf(pdf);
-            emailSenderService.sendEmail(order.getUser().getEmail(),pdf,bill.getId());
+            //emailSenderService.sendEmail(order.getUser().getEmail(),pdf,bill.getId());
             return billRepository.save(bill);
         }catch (Exception e){
             throw new Exception(e.getMessage());
