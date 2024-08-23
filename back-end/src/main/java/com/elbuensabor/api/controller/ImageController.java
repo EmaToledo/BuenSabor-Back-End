@@ -22,7 +22,7 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
 
     /**
      * Guarda una imagen.
-     * URL: http://localhost:4000/api/images/save
+     * URL: http://localhost:4000/api/images/save-image
      *
      * @param relationType Character representa el tipo de relacion que tendra la imagen: usuario, product, manufacturado.
      * @param relationId   Long representa el id al cual esta relacionada la imagen.
@@ -66,6 +66,7 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
         }
     }
 
+    // URL: http://localhost:4000/api/images/filter/{relationType}/{id}
     @GetMapping(value = "/filter/{relationType}/{id}")
     public ResponseEntity<?> findImagesIdByType(@PathVariable Long id, @PathVariable Character relationType) {
         try {
