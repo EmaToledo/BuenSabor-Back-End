@@ -15,7 +15,7 @@ public interface ItemPaymentMarketMapper extends GenericMapper<ItemPaymentMarket
     }
 
     // mapea una entidad ItemPaymentMarket a un DTO ItemPaymentMarketDTO
-   // @Mapping(source = "order.id", target = "orderId")
+    @Mapping(source = "order.id", target = "orderId")
     @Mapping(target = "status", ignore = true)
     ItemPaymentMarketDTO toDTO(ItemPaymentMarket source);
 

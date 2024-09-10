@@ -27,7 +27,6 @@ private JavaMailSender mailSender;
     public void sendEmail(String toEmail, String base64Pdf,Long number) throws Exception {
         try {
             // Convertir el string base64 a bytes
-            System.out.println(email);
             byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
 
             // Crear un InputStreamSource a partir del InputStream

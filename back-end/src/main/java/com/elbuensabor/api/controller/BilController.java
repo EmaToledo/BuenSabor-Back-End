@@ -53,4 +53,20 @@ public class BilController  extends GenericControllerImpl<Bill, BillDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
+    /**
+     * Envia una factura por email
+     *URL: http://localhost:4000/api/bill/send
+     *
+     * @param orderId id del pedido vinculado a la facuta a enviar
+     * @return booleano true de factura enviada con exito
+     * @throws Exception Si ocurre algún error durante el proceso de envio
+     */
+    @GetMapping("/send/{orderId}")
+    public ResponseEntity<?> sendBillByEmail(@PathVariable Long orderId) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.sendBillByMail(orderId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
 }
