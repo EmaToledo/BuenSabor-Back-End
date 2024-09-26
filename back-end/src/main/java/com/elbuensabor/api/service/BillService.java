@@ -5,9 +5,11 @@ import com.elbuensabor.api.entity.Bill;
 
 public interface BillService extends GenericService<Bill, BillDTO, Long> {
     // Crea una Factura
-    Bill saveBill(BillDTO dto) throws Exception;
+    BillDTO saveBill(BillDTO dto) throws Exception;
 
     BillDTO getBillByOrderId(Long orderId) throws  Exception;
+
+    boolean sendBillByMail(Long orderId) throws  Exception;
 
     void cancelBill(Long orderId) throws  Exception;
 }

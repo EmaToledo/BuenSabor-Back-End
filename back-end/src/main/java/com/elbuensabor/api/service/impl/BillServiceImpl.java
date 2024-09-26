@@ -1,5 +1,4 @@
 package com.elbuensabor.api.service.impl;
-import com.elbuensabor.api.Enum.OrderStatus;
 import com.elbuensabor.api.dto.BillDTO;
 import com.elbuensabor.api.entity.Bill;
 import com.elbuensabor.api.entity.Order;
@@ -44,7 +43,7 @@ public class BillServiceImpl extends GenericServiceImpl<Bill, BillDTO, Long> imp
      */
     @Override
     @Transactional
-    public Bill saveBill(BillDTO dto) throws Exception {
+    public BillDTO saveBill(BillDTO dto) throws Exception {
         try {
             Order order = orderRepository.findById(dto.getOrderId())
                     .orElseThrow(() -> new Exception("La Orden no existe"));
@@ -54,9 +53,26 @@ public class BillServiceImpl extends GenericServiceImpl<Bill, BillDTO, Long> imp
             bill = billRepository.save(bill);
             String pdf = pdfService.createPDF(bill);
             bill.setPdf(pdf);
-            //emailSenderService.sendEmail(order.getUser().getEmail(),pdf,bill.getId());
-            return billRepository.save(bill);
+            return billMapper.toDTO(billRepository.save(bill));
         }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Envia la Factura por Correo
+     *
+     * @param orderId  id de order vinculado a la factura a enviar por correo
+     * @throws Exception Si ocurre algún error durante el proceso de guardado
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public boolean sendBillByMail(Long orderId) throws Exception {
+        try{
+            Bill bill = billRepository.findByBillByOrderId(orderId);
+            emailSenderService.sendEmail(bill.getOrder().getUser().getEmail(),bill.getPdf(),bill.getId());
+            return true;
+        }catch(Exception e){
             throw new Exception(e.getMessage());
         }
     }

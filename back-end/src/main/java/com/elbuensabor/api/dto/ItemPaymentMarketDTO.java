@@ -10,5 +10,5 @@ public class ItemPaymentMarketDTO extends  GenericDTO {
     private  String preferenceId;
     private Long paymentID;
     private PaymentStatus status;
-   // private Long orderId;
+    private Long orderId;
 }
