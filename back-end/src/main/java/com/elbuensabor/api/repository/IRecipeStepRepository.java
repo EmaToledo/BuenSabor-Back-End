@@ -8,8 +8,7 @@ import java.util.List;
 
 @Repository
 public interface IRecipeStepRepository extends IGenericRepository<RecipeStep, Long> {
-    @Query("SELECT rs FROM RecipeStep rs WHERE rs.recipe.id = :recipeId")
-    List<RecipeStep> findStepsByRecipeId(Long recipeId);
+
 
 }
 

@@ -21,18 +21,17 @@ public interface RecipeMapper extends GenericMapper<Recipe, RecipeDTO> {
     // Mapea una entidad Recipe a un DTO RecipeDTO
     @Mapping(source = "manufacturedProduct.id", target = "manufacturedProductId")
     @Mapping(ignore = true, target = "steps")
-    @Mapping(ignore = true, target = "ingredients")
+    @Mapping(ignore = true, target = "ingredientsQuantity")
     RecipeDTO toDTO(Recipe source);
 
     // Mapea un DTO RecipeDTO a una entidad Recipe
     @Mapping(target = "manufacturedProduct", ignore = true)
     Recipe toEntity(RecipeDTO source);
 
-    @Mapping(source = "recipe.id", target = "recipeId")
+    @Mapping(source = "manufacturedProduct.id", target = "manufacturedProductId")
+    @Mapping(ignore = true, target = "steps")
+    @Mapping(ignore = true, target = "ingredientsQuantity")
     List<RecipeStepDTO> toDTOList(List<RecipeStep> source);
-
-    @Mapping(target = "recipe.id", source = "recipeId")
-    List<RecipeStep> toEntityList(List<RecipeStepDTO> source);
 
 }
 
