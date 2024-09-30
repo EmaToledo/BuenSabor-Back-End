@@ -1,8 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dto.IngredientDTO;
-import com.elbuensabor.api.dto.RecipeDTO;
-import com.elbuensabor.api.dto.RecipeStepDTO;
+import com.elbuensabor.api.dto.*;
 import com.elbuensabor.api.entity.*;
 import com.elbuensabor.api.mapper.*;
 import com.elbuensabor.api.repository.*;
@@ -30,14 +28,14 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
     private IIngredientRepository ingredientRepository;
 
     @Autowired
-    private IIngredientManufacturedLinkRepository ingredientManufacturedLinkRepository;
+    private IIngredientRecipeLinkRepository ingredientRecipeLinkRepository;
 
     private final RecipeMapper recipeMapper = RecipeMapper.getInstance();
     private final RecipeStepMapper recipeStepMapper = RecipeStepMapper.getInstance();
 
     private final IngredientMapper ingredientMapper = IngredientMapper.getInstance();
 
-    private final IngredientManufacturedLinkMapper ingredientManufacturedLinkMapper = IngredientManufacturedLinkMapper.getInstance();
+    private final IngredientRecipeLinkMapper ingredientRecipeLinkMapper = IngredientRecipeLinkMapper.getInstance();
 
     // Constructor
     public RecipeServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Recipe, Long> IGenericRepository, GenericMapper<Recipe, RecipeDTO> genericMapper) {
@@ -59,27 +57,26 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
 
             Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(() -> new Exception("La receta no existe"));
 
-            List<RecipeStep> steps = recipeStepRepository.findStepsByRecipeId(recipe.getId());
+            List<RecipeStep> steps = recipeRepository.findStepsByRecipeIdByOrder(recipe.getId());
 
-            List<Ingredient> ingredients = ingredientManufacturedLinkRepository.findIngredientsByManufacturedProductId(recipe.getManufacturedProduct().getId());
+            List<IngredientRecipeLink> ingredientRecipeLinks = ingredientRecipeLinkRepository.findIngredientsByRecipeId(recipeId);
 
             List<RecipeStepDTO> stepDTOs = new ArrayList<>();
 
-            List<IngredientDTO> ingredientDTOs = new ArrayList<>();
+            List<IngredientQuantityDTO> ingredientQuantityDTOs = new ArrayList<>();
 
             for (RecipeStep step : steps) {
                 RecipeStepDTO stepDTO = recipeStepMapper.toDTO(step);
                 stepDTOs.add(stepDTO);
             }
 
-            for (Ingredient ingredient : ingredients) {
-                IngredientDTO ingredientDTO = ingredientMapper.toDTO(ingredient);
-                ingredientDTOs.add(ingredientDTO);
+            for (IngredientRecipeLink ingredientRecipeLink : ingredientRecipeLinks) {
+                ingredientQuantityDTOs.add(ingredientRecipeLinkMapper.toQuantityIngredientDTO(ingredientRecipeLink));
             }
 
             RecipeDTO recipeDTO = recipeMapper.toDTO(recipe);
             recipeDTO.setSteps(stepDTOs);
-            recipeDTO.setIngredients(ingredientDTOs);
+            recipeDTO.setIngredientsQuantity(ingredientQuantityDTOs);
 
             return recipeDTO;
 
@@ -115,11 +112,11 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
 
             List<RecipeStepDTO> steps = dto.getSteps();
 
-            List<IngredientDTO> ingredients = dto.getIngredients();
+            List<IngredientQuantityDTO> ingredientQuantities = dto.getIngredientsQuantity();
 
             List<RecipeStepDTO> stepDTOs = new ArrayList<>();
 
-            List<IngredientDTO> ingredientDTOs = new ArrayList<>();
+            List<IngredientQuantityDTO> ingredientQuantitiesDTOs = new ArrayList<>();
 
             for (RecipeStepDTO stepDTO : steps) {
                 RecipeStep step = recipeStepMapper.toEntity(stepDTO);
@@ -132,21 +129,27 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
                 stepDTOs.add(stepDTO);
             }
 
-            for (IngredientDTO ingredientDTO : ingredients) {
-                Ingredient ingredient = verifIngredientExist(ingredientDTO.getId());
+            for (IngredientQuantityDTO ingredientQuantityDTO : ingredientQuantities) {
+                Ingredient ingredient = verifIngredientExist(ingredientQuantityDTO.getIngredient().getId());
 
-                IngredientManufacturedLink ingredientManufacturedLink = new IngredientManufacturedLink();
+                IngredientRecipeLink ingredientRecipeLink = new IngredientRecipeLink();
 
-                ingredientManufacturedLink.setManufacturedProduct(manufacturedProduct);
-                ingredientManufacturedLink.setIngredient(ingredient);
+                ingredientRecipeLink.setRecipe(recipe);
+                ingredientRecipeLink.setIngredient(ingredient);
+                ingredientRecipeLink.setQuantity(ingredientQuantityDTO.getQuantity());
 
-                ingredientManufacturedLinkRepository.save(ingredientManufacturedLink);
-                // agregar para que al actualizarlo se muestre el ingrediente que se guarda nuevo completo
-                ingredientDTOs.add(ingredientMapper.toDTO(ingredient));
+                ingredientRecipeLinkRepository.save(ingredientRecipeLink);
+
+                // para mostrar la receta completa al guardarla
+                IngredientQuantityDTO savedIngredientQuantityDTO = new IngredientQuantityDTO();
+                savedIngredientQuantityDTO.setIngredient(ingredientMapper.toDTO(ingredient));
+                savedIngredientQuantityDTO.setQuantity(ingredientQuantityDTO.getQuantity());
+
+                ingredientQuantitiesDTOs.add(savedIngredientQuantityDTO);
             }
 
             savedRecipe.setSteps(stepDTOs);
-            savedRecipe.setIngredients(ingredientDTOs);
+            savedRecipe.setIngredientsQuantity(ingredientQuantitiesDTOs);
 
             return savedRecipe;
 
@@ -166,7 +169,7 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
      */
     @Override
     @Transactional
-    public RecipeDTO updateRecipe(Long id, RecipeDTO dto) throws Exception {
+    public RecipeDTO updateRecipe(Long id, RecipeDTO dto) throws Exception  {
         try {
             Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new Exception("La receta a actualizar no existe"));
 
@@ -181,11 +184,12 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
 
             List<RecipeStep> updatedSteps = new ArrayList<>();
 
-            List<RecipeStep> existingSteps = recipeStepRepository.findStepsByRecipeId(id);
+            List<RecipeStep> existingSteps = recipeRepository.findStepsByRecipeIdByOrder(id);
 
-            List<Ingredient> updatedIngredients = new ArrayList<>();
+            List<IngredientQuantityDTO> updatedRelations = new ArrayList<>();
 
-            List<Ingredient> existingIngredients = ingredientManufacturedLinkRepository.findIngredientsByManufacturedProductId(recipe.getManufacturedProduct().getId());
+            List<IngredientRecipeLink> existingIngredientRecipeLinks = ingredientRecipeLinkRepository.findIngredientsByRecipeId(recipe.getId());
+
 
             for (RecipeStep existingStep : existingSteps) {
                 if (!verifDeletedStep(existingStep, dto.getSteps())) {
@@ -206,58 +210,67 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
 
                     updatedSteps.add(newStep);
                 } else {
-
                     RecipeStep verifStep = recipeStepRepository.findById(stepDTO.getId())
                             .orElse(null);
 
                     verifStep.setDescription(stepDTO.getDescription());
+                    verifStep.setStepNumber(stepDTO.getStepNumber());
 
                     recipeStepRepository.save(verifStep);
                 }
             }
 
-            // ------------------------------------------ testing (realizado) ------------------------------------------
-
             // se verifican los ingredientes existentes segun la receta y se eliminan de la tabla de relacion
-            for (Ingredient existingIngredient : existingIngredients) {
-                // se recorre la lista de los ingredientes segun la receta
-                if (!verifIngredientManufacturedLink(existingIngredient, dto.getIngredients())) {
+            for (IngredientRecipeLink existingIngredientRecipeLink : existingIngredientRecipeLinks) {
+
+                IngredientRecipeLinkDTO ingredientRecipeLinkDTO = ingredientRecipeLinkMapper.toDTO(existingIngredientRecipeLink);
+                // se recorre la lista de los linkDTO
+                if (!verifIngredientRecipeLink(ingredientRecipeLinkDTO, dto.getIngredientsQuantity())) {
                     // si no se encuentra en la lista se elimina de la tabla de relacion
-                    ingredientManufacturedLinkRepository.deleteByIngredientId(existingIngredient.getId());
+                    ingredientRecipeLinkRepository.deleteById(ingredientRecipeLinkDTO.getId());
                 } else {
                     // si se encuentra en la lista se agrega a otra lista de ingredientes actualizada
-                    updatedIngredients.add(existingIngredient);
+                    updatedRelations.add(ingredientRecipeLinkMapper.toQuantityIngredientDTO(existingIngredientRecipeLink));
                 }
             }
 
-            // se recorre la lista de ingredientes actualizada
-            for (IngredientDTO ingredientDto : dto.getIngredients()) {
-                Ingredient verifIngredient = verifIngredientExist(ingredientDto.getId());
+            // se recorre la lista de relaciones actualizada
+            for (IngredientQuantityDTO ingredientQuantityDTO : dto.getIngredientsQuantity()) {
 
-                List<IngredientDTO> updatedIngredientsDtos = ingredientMapper.toDTOsList(updatedIngredients);
+                IngredientRecipeLinkDTO quantityIngredientRecipeLinkDTO = ingredientRecipeLinkMapper.toIngredientQuantityDTO(ingredientQuantityDTO);
 
-                if(!verifIngredientManufacturedLink(verifIngredient, updatedIngredientsDtos) && verifIngredient != null){
-                    IngredientManufacturedLink newIngredientManufacturedLink = new IngredientManufacturedLink();
+                IngredientRecipeLink newIngredientRecipeLink = new IngredientRecipeLink();
 
-                    newIngredientManufacturedLink.setManufacturedProduct(manufacturedProduct);
-                    newIngredientManufacturedLink.setIngredient(verifIngredient);
+                if(quantityIngredientRecipeLinkDTO.getId() == null){
 
-                    ingredientManufacturedLinkRepository.save(newIngredientManufacturedLink);
+                    newIngredientRecipeLink.setRecipe(recipe);
 
-                    updatedIngredients.add(verifIngredient);
+                    newIngredientRecipeLink.setIngredient(verifIngredientExist(quantityIngredientRecipeLinkDTO.getIngredientID()));
+
+                    newIngredientRecipeLink.setQuantity(quantityIngredientRecipeLinkDTO.getQuantity());
+
+                    ingredientRecipeLinkRepository.save(newIngredientRecipeLink);
+                } else {
+                    newIngredientRecipeLink = ingredientRecipeLinkRepository.findById(quantityIngredientRecipeLinkDTO.getId()).orElseThrow(() -> new Exception("No se encontro el ingredientQuantityLink"));
+
+                    newIngredientRecipeLink.setIngredient(verifIngredientExist(quantityIngredientRecipeLinkDTO.getIngredientID()));
+                    newIngredientRecipeLink.setQuantity(quantityIngredientRecipeLinkDTO.getQuantity());
+
+                    ingredientRecipeLinkRepository.save(newIngredientRecipeLink);
                 }
+
+                updatedRelations.add(ingredientRecipeLinkMapper.toQuantityIngredientDTO(newIngredientRecipeLink));
+
             }
 
             modifiedRecipe.setSteps(recipeStepMapper.toDTOList(updatedSteps));
-            modifiedRecipe.setIngredients(ingredientMapper.toDTOsList(updatedIngredients));
+            modifiedRecipe.setIngredientsQuantity(updatedRelations);
 
             return modifiedRecipe;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
-
-    // ------------------------------------------ end-testing ------------------------------------------
 
     private ManufacturedProduct setManufacturedProductIfExists(Long manufacturedId) throws Exception {
         if (manufacturedId != null) {
@@ -288,9 +301,9 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
         return false;
     }
 
-    private boolean verifIngredientManufacturedLink(Ingredient existingIngredient, List<IngredientDTO> modifiedIngredients) {
-        for (IngredientDTO frontendIngredient : modifiedIngredients) {
-            if (existingIngredient.getId().equals(frontendIngredient.getId())) {
+    private boolean verifIngredientRecipeLink(IngredientRecipeLinkDTO existingRelation, List<IngredientQuantityDTO> modifiedRelations) {
+        for (IngredientQuantityDTO frontendRelation : modifiedRelations) {
+            if (existingRelation.getId().equals(frontendRelation.getId())) {
                 return true;
             }
         }

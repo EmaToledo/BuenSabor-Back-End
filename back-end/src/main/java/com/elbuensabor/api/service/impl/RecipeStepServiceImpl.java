@@ -44,6 +44,7 @@ public class RecipeStepServiceImpl extends GenericServiceImpl<RecipeStep, Recipe
 
             setRecipeIfExist(dto.getRecipeId(), recipeStep);
             recipeStep.setDescription(dto.getDescription());
+            recipeStep.setStepNumber(dto.getStepNumber());
 
             return recipeStepRepository.save(recipeStep);
         } catch (Exception e) {
@@ -70,6 +71,7 @@ public class RecipeStepServiceImpl extends GenericServiceImpl<RecipeStep, Recipe
             setRecipeIfExist(dto.getRecipeId(), recipeStep);
 
             recipeStep.setDescription(dto.getDescription());
+            recipeStep.setStepNumber(dto.getStepNumber());
 
             return recipeStepRepository.save(recipeStep);
         } catch (Exception e) {

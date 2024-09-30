@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 public class RecipeStepDTO extends GenericDTO {
 
     private String description;
+    private int stepNumber;
     private Long recipeId;
 
 }

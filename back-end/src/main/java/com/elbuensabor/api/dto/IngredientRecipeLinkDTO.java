@@ -5,9 +5,10 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class IngredientManufacturedLinkDTO extends GenericDTO {
+public class IngredientRecipeLinkDTO extends GenericDTO {
 
-    private Long manufacturedProductID;
+    private Long recipeID;
     private Long ingredientID;
+    private Long quantity;
 
 }

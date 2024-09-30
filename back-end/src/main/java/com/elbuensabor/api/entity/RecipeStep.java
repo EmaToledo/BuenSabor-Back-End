@@ -19,6 +19,9 @@ public class RecipeStep extends GenericEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "stepNumber")
+    private int stepNumber;
+
     @ManyToOne
     @JoinColumn(name = "idRecipe")
     @JsonBackReference
