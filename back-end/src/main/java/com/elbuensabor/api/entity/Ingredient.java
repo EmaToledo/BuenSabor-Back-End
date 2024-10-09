@@ -19,12 +19,6 @@ public class Ingredient extends GenericEntity {
     @Column(name = "denomination")
     private String denomination;
 
-    @Column(name = "min_stock")
-    private Long minStock;
-
-    @Column(name = "actual_stock")
-    private Long actualStock;
-
     @Column(name = "unit")
     private String unit;
 
