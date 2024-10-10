@@ -25,12 +25,6 @@ public class Product extends GenericEntity {
     @Column(name = "availability")
     private Boolean availability;
 
-    @Column(name = "min_stock")
-    private Long minStock;
-
-    @Column(name = "actual_stock")
-    private Long actualStock;
-
     @ManyToOne
     @JoinColumn(name = "id_category")
     @JsonBackReference
