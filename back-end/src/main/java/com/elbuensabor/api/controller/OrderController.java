@@ -110,7 +110,7 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
      * @return ResponseEntity con la lista de ordenes con sus relaciones  en el cuerpo de la respuesta.
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
-    @PutMapping("/cencel/{id}")
+    @PutMapping("/cancel/{id}")
     public ResponseEntity<?> cancelOrder(@PathVariable Long id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.cancelOrder(id));

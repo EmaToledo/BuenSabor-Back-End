@@ -72,8 +72,6 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
             setIngredientCategoryIfExists(dto.getIngredientCategoryID(), ingredient);
 
             ingredient.setDenomination(dto.getDenomination());
-            ingredient.setMinStock(dto.getMinStock());
-            ingredient.setActualStock(dto.getActualStock());
             ingredient.setUnit(dto.getUnit());
             ingredient.setAvailability(dto.getAvailability());
 
@@ -98,6 +96,16 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
             ingredient.setIngredientCategory(ingredientCategory);
         } else {
             ingredient.setIngredientCategory(null);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Long getLastIngredientId() throws Exception {
+        try {
+            return ingredientRepository.findLastIngredientId();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 

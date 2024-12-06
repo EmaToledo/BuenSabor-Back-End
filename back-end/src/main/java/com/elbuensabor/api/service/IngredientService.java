@@ -11,6 +11,8 @@ public interface IngredientService extends GenericService<Ingredient, Ingredient
     // Actualiza un ingrediente
     Ingredient updateIngredient(Long id, IngredientDTO dto) throws Exception;
 
+    Long getLastIngredientId() throws Exception;
+
     // Bloquea un ingrediente
     Ingredient blockIngredient(Long id) throws Exception;
 
