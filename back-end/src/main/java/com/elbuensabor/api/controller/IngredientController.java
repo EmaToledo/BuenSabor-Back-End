@@ -54,6 +54,15 @@ public class IngredientController extends GenericControllerImpl<Ingredient, Ingr
         }
     }
 
+    @GetMapping("/lastID")
+    public ResponseEntity<?> getLastIngredientId() {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getLastIngredientId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
     /**
      * Bloquea o desbloquea un ingrediente.
      * URL: http://localhost:4000/api/ingredients/block/{id}

@@ -1,24 +1,20 @@
 package com.elbuensabor.api.service;
 
+import com.elbuensabor.api.dto.OrderDetailDTO;
 import com.elbuensabor.api.dto.StockDTO;
 import com.elbuensabor.api.entity.Stock;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StockService extends GenericService<Stock, StockDTO, Long>{
 
-    // Obtiene un stock individual
-    public StockDTO getStock(Long id) throws Exception;
-
-    // Obtiene la lista completa de stocks
-    public List<StockDTO> getAllStock() throws Exception;
-
     // Guarda un stock
     Stock saveStock(StockDTO dto, Character type, Long relationId) throws Exception;
-
-    public Stock update(Long id, Long minStock) throws Exception;
-
     // Actualiza un stock
-    Stock addStock(Long id, StockDTO dto) throws Exception;
-
+    Stock update(Long id, StockDTO dto) throws Exception;
+    // Verifica la cantidad de stock utilizado en una orden ya sea producto o manufacturado y si es posible los reduce
+    boolean verifAndDiscountStock(List<OrderDetailDTO> orderDetaisDtos) throws Exception;
+    // Devuelve el stock para algunos casos de modificaciones o eliminaciones
+    boolean reStock(List<OrderDetailDTO> deletedOrderDetails) throws Exception;
 }

@@ -11,4 +11,7 @@ import java.util.List;
 public interface IStockRepository extends IGenericRepository<Stock, Long> {
     @Query("SELECT s FROM Stock s WHERE s.ingredientStock.id = :ingredientID")
     Stock findIngredientStock(Long ingredientID);
+
+    @Query("SELECT s FROM Stock s WHERE s.productStock.id = :productID")
+    Stock findProductStock(Long productID);
 }
