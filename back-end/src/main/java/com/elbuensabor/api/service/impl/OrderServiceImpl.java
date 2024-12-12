@@ -23,6 +23,8 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     public OrderServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Order, Long> IGenericRepository, GenericMapper<Order, OrderDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+
     private final OrderMapper orderMapper = OrderMapper.getInstance();
     private final OrderDetailMapper orderDetailMapper = OrderDetailMapper.getInstance();
     private final ProductMapper productMapper = ProductMapper.getInstance();
@@ -45,6 +47,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     private IPriceRepository priceRepository;
     @Autowired
     private PaymentMarketService paymentMarketService;
+
     @Override
     @Transactional(readOnly = true)
     public  List<OrderDTO> getAllOrders() throws Exception{
@@ -182,4 +185,19 @@ if (order.getPaymentType().equals("mp")){
     }
 
 
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        // Buscar la orden por id
+        Order order = orderRepository.findById(id).orElseThrow(() -> new Exception("Order not found"));
+
+        // Cambiar el estado a nuevo estado
+        order.setState(OrderStatus.valueOf(newState)); // Asegúrate de que el nuevo estado sea válido
+
+        // Guardar la orden actualizada
+        Order updatedOrder = orderRepository.save(order);
+
+        // Convertir la entidad a DTO y retornar
+        return orderMapper.toDTO(updatedOrder);
+    }
 }

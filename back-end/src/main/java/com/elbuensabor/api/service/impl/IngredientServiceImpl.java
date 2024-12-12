@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.IngredientDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.Ingredient;
 import com.elbuensabor.api.mapper.GenericMapper;
@@ -31,6 +32,12 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
     public IngredientServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Ingredient, Long> IGenericRepository, GenericMapper<Ingredient, IngredientDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
 
     /**
      * Guarda un ingrediente.

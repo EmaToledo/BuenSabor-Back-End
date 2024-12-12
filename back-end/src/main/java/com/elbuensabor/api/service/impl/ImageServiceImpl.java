@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.ImageDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Image;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.entity.Product;
@@ -53,6 +54,11 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
 
     public ImageServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Image, Long> IGenericRepository, GenericMapper<Image, ImageDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
+    }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
     }
 
     @Override

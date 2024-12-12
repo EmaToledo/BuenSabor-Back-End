@@ -31,12 +31,12 @@ public class Price extends GenericEntity {
     private LocalDateTime costPriceDate;
 
     @ManyToOne()
-    @JoinColumn(name = "idProduct")
+    @JoinColumn(name = "id_product")
     @JsonBackReference
     private Product product;
 
     @ManyToOne()
-    @JoinColumn(name = "idManufacturedProduct")
+    @JoinColumn(name = "id_manufactured_product")
     @JsonBackReference
     private ManufacturedProduct manufacturedProduct;
 

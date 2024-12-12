@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.IngredientDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.RecipeDTO;
 import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.*;
@@ -43,6 +44,13 @@ public class RecipeServiceImpl extends GenericServiceImpl<Recipe, RecipeDTO, Lon
     public RecipeServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Recipe, Long> IGenericRepository, GenericMapper<Recipe, RecipeDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
 
     /**
      * Obtiene una receta completa por su ID.

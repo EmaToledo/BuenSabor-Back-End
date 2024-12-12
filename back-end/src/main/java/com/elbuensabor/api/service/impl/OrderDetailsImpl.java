@@ -29,6 +29,14 @@ public class OrderDetailsImpl  extends GenericServiceImpl<OrderDetail, OrderDeta
     public OrderDetailsImpl(com.elbuensabor.api.repository.IGenericRepository<OrderDetail, Long> IGenericRepository, GenericMapper<OrderDetail, OrderDetailDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
+
     private final OrderDetailMapper orderDetailMapper = OrderDetailMapper.getInstance();
     private final ProductMapper productMapper = ProductMapper.getInstance();
     private final ManufacturedProductMapper manufacturedProductMapper = ManufacturedProductMapper.getInstance();

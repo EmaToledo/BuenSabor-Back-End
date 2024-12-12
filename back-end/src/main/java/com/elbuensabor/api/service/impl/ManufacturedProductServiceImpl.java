@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.ManufacturedProductDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.mapper.GenericMapper;
@@ -34,6 +35,13 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     public ManufacturedProductServiceImpl(com.elbuensabor.api.repository.IGenericRepository<ManufacturedProduct, Long> IGenericRepository, GenericMapper<ManufacturedProduct, ManufacturedProductDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
 
     /**
      * Guarda un producto manufacturado.

@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.Auth0RoleDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.RoleDTO;
 import com.elbuensabor.api.entity.RecipeStep;
 import com.elbuensabor.api.entity.Role;
@@ -30,6 +31,14 @@ public class RoleServiceImpl extends GenericServiceImpl<Role, RoleDTO, Long> imp
     public RoleServiceImpl(IGenericRepository<Role, Long> genericRepository, GenericMapper<Role, RoleDTO> genericMapper) {
         super(genericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
+
     @Transactional(readOnly = true)
     public  Auth0RoleDTO[] getUserRolesAuth0(String id) {
         try {

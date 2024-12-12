@@ -5,5 +5,9 @@ public enum OrderStatus {
     PREPARATION,
     CANCELED,
     REJECTED,
-    DELIVERED
+    DELIVERED,
+    READY,
+    FINALIZED
+
+
 }

@@ -2,6 +2,7 @@ package com.elbuensabor.api.entity;
 
 import com.elbuensabor.api.Enum.OrderStatus;
 import com.elbuensabor.api.Enum.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 @Setter
 @AttributeOverride(name = "id", column = @Column(name = "id_order"))
 public class Order  extends GenericEntity {
-
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "date_Time")
     private LocalDateTime dateTime;
 

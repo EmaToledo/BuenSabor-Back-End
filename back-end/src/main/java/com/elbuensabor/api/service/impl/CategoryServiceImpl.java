@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 
 import com.elbuensabor.api.dto.CategoryDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.mapper.CategoryMapper;
 import com.elbuensabor.api.mapper.GenericMapper;
@@ -31,6 +32,13 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     public CategoryServiceImpl(IGenericRepository<Category, Long> IGenericRepository, GenericMapper<Category, CategoryDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
 
     /**
      * Guarda una categoría en la base de datos.

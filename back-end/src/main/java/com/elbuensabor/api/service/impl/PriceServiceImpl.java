@@ -1,5 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.PriceDTO;
 import com.elbuensabor.api.entity.*;
 import com.elbuensabor.api.mapper.GenericMapper;
@@ -27,6 +28,13 @@ public class PriceServiceImpl extends GenericServiceImpl<Price, PriceDTO, Long> 
     public PriceServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Price, Long> genericRepository, GenericMapper<Price, PriceDTO> genericMapper) {
         super(genericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
 
     @Override
     @Transactional()

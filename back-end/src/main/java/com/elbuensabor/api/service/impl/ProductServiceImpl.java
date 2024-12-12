@@ -1,5 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.ProductDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.Product;
@@ -34,6 +35,13 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     public ProductServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Product, Long> IGenericRepository, GenericMapper<Product, ProductDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
     }
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
+
+
 
     /**
      * Guarda un producto.

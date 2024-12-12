@@ -1,6 +1,7 @@
 package com.elbuensabor.api.service.impl;
 import com.elbuensabor.api.Enum.OrderStatus;
 import com.elbuensabor.api.dto.BillDTO;
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Bill;
 import com.elbuensabor.api.entity.Order;
 import com.elbuensabor.api.mapper.BillMapper;
@@ -32,6 +33,13 @@ public class BillServiceImpl extends GenericServiceImpl<Bill, BillDTO, Long> imp
 
     public BillServiceImpl(com.elbuensabor.api.repository.IGenericRepository<Bill, Long> IGenericRepository, GenericMapper<Bill, BillDTO> genericMapper) {
         super(IGenericRepository, genericMapper);
+    }
+
+
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
     }
 
 

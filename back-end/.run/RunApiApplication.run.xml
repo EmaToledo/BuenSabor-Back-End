@@ -1,0 +1,31 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RunApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ALTERNATIVE_JRE_PATH" value="corretto-17" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <envs>
+      <env name="DB_URL" value="jdbc:mysql://localhost:3306/el_buen_sabor?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;useTimezone=true&amp;serverTimezone=GMT&amp;characterEncoding=UTF-8" />
+      <env name="DB_USER" value="root" />
+      <env name="DB_PASSWORD" value="mysql" />
+      <env name="DB_PORT" value="4000" />
+      <env name="IMAGE_UPLOAD_PATH" value="../../BuenSabor-Front-End/react-front/uploads" />
+      <env name="AUTH0_ISSUER_URI" value="https://dev-oytgouczyj6i7dr0.us.auth0.com/" />
+      <env name="AUTH0_AUDIENCE" value="localhost:8080" />
+      <env name="AUTH0_DOMAIN" value="dev-oytgouczyj6i7dr0.us.auth0.com" />
+      <env name="AUTH0_API_CLIENT_ID" value="84odht17bTs15RwLwKdoqD2y4E5OeL4L" />
+      <env name="AUTH0_API_CLIENT_SECRET" value="eYuo1QE9Re3pPvGv_uj5VfxmpOVqClxsbPvQ0s3Ke9hWcpYOhYWcL8OqKxAAyJkW" />
+      <env name="AUTH0_API_AUDIENCE" value="https://dev-oytgouczyj6i7dr0.us.auth0.com/api/v2/" />
+      <env name="PDF_TYPE" value="application/pdf" />
+      <env name="EMAIL_HOST" value="smtp.office365.com" />
+      <env name="EMAIL_PORT" value="587" />
+      <env name="EMAIL_PROTOCOL" value="smtp" />
+      <env name="EMAIL_USER_NAME" value="buen_sabor_mickey_mouse@hotmail.com" />
+      <env name="EMAIL_PASSWORD" value="mickeymouse1234" />
+      <env name="MP_ACCESS_TOKEN" value="APP_USR-7590069297921327-072818-056bc3bd22b90d7763af70bffbccea05-1852644583" />
+    </envs>
+    <module name="api.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.elbuensabor.ApiApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

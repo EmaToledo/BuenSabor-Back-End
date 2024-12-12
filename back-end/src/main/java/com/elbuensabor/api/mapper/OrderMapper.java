@@ -24,7 +24,6 @@ public interface OrderMapper extends GenericMapper<Order, OrderDTO>{
 
     @Mapping(target = "orderDetails", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "dateTime", ignore = true)
     Order toEntity(OrderDTO orderDTO);
 
     List<OrderDTO> toDTOList(List<Order> source);

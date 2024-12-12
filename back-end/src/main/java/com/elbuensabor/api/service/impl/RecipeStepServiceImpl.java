@@ -1,5 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.RecipeStepDTO;
 import com.elbuensabor.api.entity.Recipe;
 import com.elbuensabor.api.entity.RecipeStep;
@@ -86,5 +87,11 @@ public class RecipeStepServiceImpl extends GenericServiceImpl<RecipeStep, Recipe
         } else {
             recipeStep.setRecipe(null);
         }
+    }
+
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
     }
 }

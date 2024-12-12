@@ -347,4 +347,11 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserDTO, Long> imp
             return null;
         }
     };
+
+
+
+    @Override
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        return null;
+    }
 }
