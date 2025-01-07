@@ -99,6 +99,16 @@ public class IngredientServiceImpl extends GenericServiceImpl<Ingredient, Ingred
         }
     }
 
+    @Override
+    @Transactional
+    public Long getLastIngredientId() throws Exception {
+        try {
+            return ingredientRepository.findLastIngredientId();
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     /**
      * Bloquea un ingrediente cambiando su disponibilidad.
      *

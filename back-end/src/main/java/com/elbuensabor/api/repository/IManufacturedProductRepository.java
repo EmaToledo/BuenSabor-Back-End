@@ -16,7 +16,7 @@ public interface IManufacturedProductRepository extends IGenericRepository<Manuf
     @Query("SELECT m FROM ManufacturedProduct m WHERE m.availability = true")
     List<ManufacturedProduct> findAvailableManufacturedProducts();
 
-    @Query("SELECT il FROM Recipe r JOIN IngredientRecipeLink il ON r.id = il.recipe.id WHERE r.manufacturedProduct = :manufacturedProductId")
+    @Query("SELECT il FROM Recipe r JOIN IngredientRecipeLink il ON r.id = il.recipe.id WHERE r.manufacturedProduct.id = :manufacturedProductId")
     List<IngredientRecipeLink> findManufacturedProductIngredients(Long manufacturedProductId);
 
 }

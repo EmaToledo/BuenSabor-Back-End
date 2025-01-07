@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping(path = "api/bill")
-public class BilController  extends GenericControllerImpl<Bill, BillDTO> {
+public class BillController extends GenericControllerImpl<Bill, BillDTO> {
 
     @Autowired
     private BillService service;
