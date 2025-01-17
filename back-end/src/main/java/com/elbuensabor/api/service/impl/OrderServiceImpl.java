@@ -113,7 +113,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
             order.setDateTime(LocalDateTime.now());
 
             // se verifica que la cantidad pedida se corresponda a la cantidad de stock actual y se reduce si es posible
-            if (stockService.verifAndDiscountStock(dto.getOrderDetails())) {
+            if (stockService.verifAndDiscountOrAddStock(dto.getOrderDetails(), 'R')) {
                 Order savedOrder = orderRepository.save(order);
 
                 savedOrder.setOrderDetails(orderDetailService.saveOrderDetails(orderDetails, savedOrder));
@@ -159,7 +159,6 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + id));
-            System.out.println("antes de devolver el dinero");
             if (order.getPaymentType().equals("mp")) {
                 if (order.getPaid() == PaymentStatus.approved) {
                     paymentMarketService.fullRefundPayment(id);
@@ -170,9 +169,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
             billService.cancelBill(order.getId());
             order.setCanceled(true);
             // devuelve el stock de la orden cancelada
-            System.out.println("antes de devolver stock");
-            stockService.reStock(orderDetailMapper.toDTOsList(order.getOrderDetails()));
-            System.out.println("antes de cancelarla");
+            stockService.verifAndDiscountOrAddStock(getOrderDetailDTOList(order), 'A');
             order.setState(OrderStatus.CANCELED);
 
             return orderMapper.toDTO(orderRepository.save(order));

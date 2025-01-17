@@ -1,10 +1,14 @@
 package com.elbuensabor.api.mapper;
 
+import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.dto.OrderDetailDTO;
+import com.elbuensabor.api.entity.Order;
 import com.elbuensabor.api.entity.OrderDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface OrderDetailMapper extends GenericMapper<OrderDetail, OrderDetailDTO>{
@@ -20,4 +24,5 @@ public interface OrderDetailMapper extends GenericMapper<OrderDetail, OrderDetai
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "manufacturedProduct", ignore = true)
     OrderDetail toEntity(OrderDetailDTO source);
+
 }
