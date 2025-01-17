@@ -11,5 +11,5 @@ public interface BillService extends GenericService<Bill, BillDTO, Long> {
 
     boolean sendBillByMail(Long orderId) throws  Exception;
 
-    void cancelBill(Long orderId) throws  Exception;
+    void cancelBill(Long orderId) throws Exception;
 }
