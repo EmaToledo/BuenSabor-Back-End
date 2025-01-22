@@ -95,12 +95,12 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
     }
 
     // verifica si es posible la orden segun el stock actual y si es posible lo reduce
-    public boolean verifAndDiscountStock(List<OrderDetailDTO> orderDetailsDtos) throws Exception {
+    public boolean verifAndDiscountOrAddStock(List<OrderDetailDTO> orderDetailsDtos, char reduceOrAddType) throws Exception {
         boolean verifIngredientStock, verifProductStock;
 
         // se distinguen los order details por productos y manufacturados para hacer su respectivo descuento de stock
-        List<OrderDetailDTO> productsDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailsDtos, 'P');
-        List<OrderDetailDTO> manufacturedDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailsDtos, 'M');
+        List<OrderDetailDTO> productsDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailsDtos, STOCK_RELATION_TYPE_PRODUCT);
+        List<OrderDetailDTO> manufacturedDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailsDtos, STOCK_RELATION_TYPE_INGREDIENT);
 
         // map que contendra el id ingrediente y la cantidad
         Map<Long, Long> ingredientQuantities = setMapManufacturedProduct(manufacturedDetailsList);
@@ -108,14 +108,17 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         Map<Long, Long> productQuantities = setMapProducts(productsDetailsList);
 
         // se verifica que haya el stock necesario para la orden
-        verifIngredientStock = verifActualStockAndOrderQuantity(ingredientQuantities, 'M');
-        verifProductStock = verifActualStockAndOrderQuantity(productQuantities, 'P');
+        verifIngredientStock = verifActualStockAndOrderQuantity(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT);
+        verifProductStock = verifActualStockAndOrderQuantity(productQuantities, STOCK_RELATION_TYPE_PRODUCT);
 
-        if (verifIngredientStock && verifProductStock) {
+        if (verifIngredientStock && verifProductStock && (reduceOrAddType == STOCK_REDUCE_TYPE)) { // si el stock es suficiente se reduce
             reduceOrAddStock(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_REDUCE_TYPE); // se reduce el stock de los ingredientes del manufacturado
             reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_REDUCE_TYPE); // se redude el stock de los productos
+        } else if (reduceOrAddType == STOCK_ADD_TYPE) { // si hay que devolver stock
+            reduceOrAddStock(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_ADD_TYPE); // se agrega el stock de los ingredientes del manufacturado
+            reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_ADD_TYPE); // se agrega el stock de los productos
         } else {
-            throw new Exception("No hay suficiente stock para la orden");
+            throw new Exception("Ha ocurrido un error");
         }
         return true;
     }
@@ -157,7 +160,6 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
     private List<OrderDetailDTO> distinctOrderDetailsByProductsAndManufactured(List<OrderDetailDTO> orderDetails, Character type) throws Exception {
         List<OrderDetailDTO> tempOrderDetailsList = new ArrayList<>();
-        System.out.println("Total Order Details: " + orderDetails.size());
 
         for (OrderDetailDTO orderDetail : orderDetails) {
             {// verifica los order detail y los agrupa segun los ids
@@ -217,56 +219,25 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
                 if (relationID == null) {
                     throw new Exception("El id de la relacion con el stock es nulo");
                 }
-                System.out.println("antes de crear stock");
                 Stock stock = (type == STOCK_RELATION_TYPE_INGREDIENT)
                         ? iStockRepository.findIngredientStock(relationID)
                         : iStockRepository.findProductStock(relationID);
-                System.out.println("despues de crear stock");
                 // verificacion por si el stock quedo en null
                 if (stock == null) {
-                    System.out.println("El id de la relacion con el stock es nulo");
                     throw new Exception("El id de la relacion con el stock es nulo");
                 }
 
-                System.out.println("antes de entrar a la verificacion, reduceoraddtype: " + reduceOrAddType + " - STOCK_ADD_TYPE: " + STOCK_ADD_TYPE);
                 if (reduceOrAddType == STOCK_REDUCE_TYPE) {
                     stock.setActualStock(stock.getActualStock() - totalQuantity);
                 } else if (reduceOrAddType == STOCK_ADD_TYPE) {
                     stock.setActualStock(stock.getActualStock() + totalQuantity);
-                    System.out.println("se agrego al stock id: " + stock.getId() + " - La cantidad: " + totalQuantity);
                 }
                 iStockRepository.save(stock);
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new Exception(e.getMessage());
         }
-    }
-
-    public boolean reStock(List<OrderDetailDTO> orderDetailDTOList) throws Exception {
-        try {
-            List<OrderDetailDTO> manufacturedProductOrderDetailList = new ArrayList<>();
-            List<OrderDetailDTO> productOrderDetailList = new ArrayList<>();
-
-            // Listas filtradas de detalles de la orden
-            manufacturedProductOrderDetailList = distinctOrderDetailsByProductsAndManufactured(orderDetailDTOList, STOCK_RELATION_TYPE_INGREDIENT);
-            productOrderDetailList = distinctOrderDetailsByProductsAndManufactured(orderDetailDTOList, STOCK_RELATION_TYPE_PRODUCT);
-
-            Map<Long, Long> manufacturedQuantities = setMapManufacturedProduct(manufacturedProductOrderDetailList);
-            Map<Long, Long> productQuantities = setMapProducts(productOrderDetailList);
-
-            // Agrega denuevo los stocks utilizados por la orden cancelada
-            if (OrderStatus.PENDING.equals(OrderStatus.PENDING)) {
-                reduceOrAddStock(manufacturedQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_ADD_TYPE);
-            } else {
-                System.out.println("El stock no puede ser devuelto, los productos ya fueron usados");
-            }
-
-            reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_ADD_TYPE);
-
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-        return true;
     }
 
 }

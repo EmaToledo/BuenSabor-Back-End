@@ -23,7 +23,7 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
 
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
-    @PostMapping ("/save-stock")
+    @PostMapping("/save-stock")
     public ResponseEntity<?> saveStock(@RequestBody StockDTO dto, @RequestParam Character type, @RequestParam Long relationId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.saveStock(dto, type, relationId));
@@ -40,14 +40,4 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
-
-    @PostMapping("/testing/reStock")
-    public ResponseEntity<?> reStock(@RequestBody List<OrderDetailDTO> dtos) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(service.reStock(dtos));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
-        }
-    }
-
 }
