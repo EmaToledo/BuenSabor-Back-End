@@ -11,5 +11,6 @@ public class StockDTO extends GenericDTO{
     private Long minStock;
     private Long productStockID;
     private Long ingredientStockID;
+    private String denomination;
 
 }
