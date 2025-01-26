@@ -48,8 +48,8 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
         try {
             ManufacturedProduct manufacturedProduct = manufacturedProductMapper.toEntity(dto);
             setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
-            manufacturedProductRepository.save(manufacturedProduct);
-            priceService.savePrice(dto.getPrice(),getLastManufacturedProductId(),2);
+            manufacturedProduct = manufacturedProductRepository.save(manufacturedProduct);
+            priceService.savePrice(dto.getPrice(),manufacturedProduct.getId(),2);
             return manufacturedProduct;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
