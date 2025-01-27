@@ -2,12 +2,16 @@ package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
 import com.elbuensabor.api.dto.ManufacturedProductDTO;
+import com.elbuensabor.api.dto.ManufacturedRecipeDTO;
+import com.elbuensabor.api.dto.RecipeDTO;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 import com.elbuensabor.api.service.ManufacturedProductService;
+import com.elbuensabor.api.service.MultipleEntitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -16,6 +20,8 @@ public class ManufacturedProductController extends GenericControllerImpl<Manufac
 
     @Autowired
     private ManufacturedProductService service;
+    @Autowired
+    private MultipleEntitiesService multipleEntitiesService;
 
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
@@ -35,7 +41,15 @@ public class ManufacturedProductController extends GenericControllerImpl<Manufac
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
-
+    @PostMapping(value = "/saveR")
+    public ResponseEntity<?> saveManufacturedRecipe(
+            @RequestBody ManufacturedRecipeDTO dto){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(multipleEntitiesService.saveManufacturedWithRecipe(dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
     /**
      * Actualiza un producto manufacturado.
      * URL: http://localhost:4000/api/manufactured-products/update/{id}
