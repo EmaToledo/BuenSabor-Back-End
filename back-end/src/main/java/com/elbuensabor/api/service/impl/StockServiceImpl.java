@@ -198,14 +198,88 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         return true;
     }
 
-    // todo -> Metodo que verifica si todos los ingredientes se encuentran arriba del stock minimo, sino que se de de baja luego de utilizarlos en una orden
-    public Stock verifMinStock(Long id) throws Exception {
+    public boolean verifAndDisableByStock(Long id, char type) throws Exception {
         try {
-            return new Stock();
+            Stock stock;
+            boolean isMoreThanMinStock = true;
+            ManufacturedProduct manufacturedProduct = iManufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("No se encontro el producto manufacturado"));
+
+            if (type == STOCK_RELATION_TYPE_INGREDIENT) {
+                List<IngredientRecipeLink> ingredientRecipeLinks = iManufacturedProductRepository.findManufacturedProductIngredients(id);
+                for (IngredientRecipeLink recipeLink : ingredientRecipeLinks) {
+                    Long ingredientID = recipeLink.getIngredient().getId();
+
+                    stock = iStockRepository.findIngredientStock(ingredientID);
+
+                    if (stock.getActualStock() <= stock.getMinStock()) {
+                        isMoreThanMinStock = false;
+                        // todo -> se podria poner para que en vez de mostrar un stock como retorno, que verifique y  mande a un log los ingredientes que tengan bajo stock
+                    }
+                }
+
+                manufacturedProduct.setAvailability(isMoreThanMinStock);
+                iManufacturedProductRepository.save(manufacturedProduct);
+            } else if (type == STOCK_RELATION_TYPE_PRODUCT) {
+                stock = iStockRepository.findProductStock(id);
+                Product product = iProductRepository.findById(id).orElseThrow(() -> new Exception("No se encontro el producto"));
+
+                if (stock.getActualStock() <= stock.getMinStock()) {
+                    isMoreThanMinStock = false;
+                }
+
+                product.setAvailability(isMoreThanMinStock);
+                iProductRepository.save(product);
+            }
+            return isMoreThanMinStock;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
+
+    /*
+    @Transactional
+    public void verifMinStockAndDisableList() {
+        try {
+            List<ManufacturedProduct> manufacturedProducts = iManufacturedProductRepository.findAll();
+
+            for (ManufacturedProduct manufacturedProduct : manufacturedProducts) {
+                boolean isMoreThanMinStock = true;
+
+                // Se obtienen los recipeLinks para la verificacion de stock de cada ingrediente
+                List<IngredientRecipeLink> ingredientRecipeLinks = iManufacturedProductRepository.findManufacturedProductIngredients(manufacturedProduct.getId());
+
+                for (IngredientRecipeLink recipeLink : ingredientRecipeLinks) {
+                    Long ingredientId = recipeLink.getIngredient().getId();
+                    Stock stock = iStockRepository.findIngredientStock(ingredientId);
+
+                    if (stock.getActualStock() <= stock.getMinStock()) {
+                        isMoreThanMinStock = false;
+                    }
+                }
+
+                manufacturedProduct.setAvailability(isMoreThanMinStock);
+                iManufacturedProductRepository.save(manufacturedProduct);
+            }
+
+            // Verificacion de todos los productos
+            List<Product> products = iProductRepository.findAll();
+            for (Product product : products) {
+                Stock stock = iStockRepository.findProductStock(product.getId());
+
+                if (stock.getActualStock() <= stock.getMinStock()) {
+                    product.setAvailability(false);
+                } else {
+                    product.setAvailability(true);
+                }
+
+                iProductRepository.save(product);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al verificar el stock y deshabilitar el producto: " + e.getMessage(), e);
+        }
+    }
+    */
 
     // reduce el stock mediante un map que contiene ids de productos o ingredientes de manufacturado y sus respectivas cantidades de la orden
     public void reduceOrAddStock(Map<Long, Long> orderQuantities, char type, char reduceOrAddType) throws Exception {

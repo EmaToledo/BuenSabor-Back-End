@@ -15,4 +15,7 @@ public interface StockService extends GenericService<Stock, StockDTO, Long>{
     Stock update(Long id, StockDTO dto) throws Exception;
     // Verifica la cantidad de stock utilizado en una orden ya sea producto o manufacturado y si es posible los reduce
     boolean verifAndDiscountOrAddStock(List<OrderDetailDTO> orderDetaisDtos, char reduceOrAddType) throws Exception;
+
+    // testing
+    boolean verifAndDisableByStock(Long id, char type) throws Exception;
 }
