@@ -104,6 +104,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     @Transactional
     public OrderDTO saveOrder(OrderDTO dto) throws Exception {
         try {
+            System.out.println();
             List<OrderDetailDTO> orderDetails = dto.getOrderDetails();
 
             Order order = orderMapper.toEntity(dto);

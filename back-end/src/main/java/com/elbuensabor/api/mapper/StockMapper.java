@@ -13,6 +13,7 @@ public interface StockMapper extends GenericMapper<Stock, StockDTO>{
     // mapea una entidad Stock a un DTO StockDTO
     @Mapping(source = "productStock.id", target = "productStockID")
     @Mapping(source = "ingredientStock.id", target = "ingredientStockID")
+    @Mapping(expression = "java(source.getIngredientStock() == null ? source.getProductStock().getDenomination() : source.getIngredientStock().getDenomination())", target = "denomination")
     StockDTO toDTO(Stock source);
 
     // mapea un DTO StockDTO a una entidad Stock

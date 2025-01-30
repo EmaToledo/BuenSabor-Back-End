@@ -17,6 +17,7 @@ repositories {
 
 
 dependencies {
+	implementation ("org.postgresql:postgresql:42.6.0")
 	implementation("org.springframework.boot:spring-boot-starter-mail:3.3.1")
 	implementation("com.github.librepdf:openpdf:2.0.2")
 	implementation("com.mercadopago:sdk-java:2.1.24")
