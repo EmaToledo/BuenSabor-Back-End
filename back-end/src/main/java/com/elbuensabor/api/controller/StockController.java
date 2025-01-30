@@ -40,4 +40,13 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
+
+    @GetMapping("/verifAndDisableByStock/{id}/{type}")
+    public ResponseEntity<?> verifAndDisableByStock(@PathVariable Long id, @PathVariable char type) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.verifAndDisableByStock(id, type));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
 }
