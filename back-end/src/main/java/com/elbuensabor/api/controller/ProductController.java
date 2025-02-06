@@ -2,7 +2,9 @@ package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
 import com.elbuensabor.api.dto.ProductDTO;
+import com.elbuensabor.api.dto.ProductXStockDTO;
 import com.elbuensabor.api.entity.Product;
+import com.elbuensabor.api.service.MultipleEntitiesService;
 import com.elbuensabor.api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ public class ProductController extends GenericControllerImpl<Product, ProductDTO
 
     @Autowired
     private ProductService service;
+    @Autowired
+    private MultipleEntitiesService multipleEntitiesService;
 
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
@@ -31,6 +35,15 @@ public class ProductController extends GenericControllerImpl<Product, ProductDTO
     public ResponseEntity<?> save(@RequestBody ProductDTO dto) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.saveProduct(dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+    @PostMapping(value = "/saveComplete")
+    public ResponseEntity<?> save(@RequestBody ProductXStockDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(multipleEntitiesService.saveProductWithStock(dto.getProduct(),dto.getStock()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }

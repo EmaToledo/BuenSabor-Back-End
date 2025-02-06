@@ -1,13 +1,10 @@
 package com.elbuensabor.api.service.impl;
 
-import com.elbuensabor.api.dto.ManufacturedProductDTO;
-import com.elbuensabor.api.dto.ManufacturedRecipeDTO;
-import com.elbuensabor.api.dto.RecipeDTO;
+import com.elbuensabor.api.dto.*;
+import com.elbuensabor.api.entity.Ingredient;
 import com.elbuensabor.api.entity.ManufacturedProduct;
-import com.elbuensabor.api.service.ImageService;
-import com.elbuensabor.api.service.ManufacturedProductService;
-import com.elbuensabor.api.service.MultipleEntitiesService;
-import com.elbuensabor.api.service.RecipeService;
+import com.elbuensabor.api.entity.Product;
+import com.elbuensabor.api.service.*;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,13 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
     private RecipeService recipeService;
 
     @Autowired
-    private ImageService imageService;
+    private StockService stockService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private IngredientService ingredientService;
 
     @Transactional
     public ManufacturedProduct saveManufacturedWithRecipe(ManufacturedRecipeDTO dto) throws Exception {
@@ -36,6 +39,29 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
             return manufacturedProduct;
         } catch (Exception e) {
             throw new Exception("Error al guardar Producto Manufacturado Completo: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public Ingredient saveIngredientWithStock(IngredientDTO dto , StockDTO stockDTO) throws Exception {
+        try {
+            Ingredient ingredient = ingredientService.saveIngredient(dto);
+            stockDTO.setIngredientStockID(ingredient.getId());
+            stockService.saveStock(stockDTO,'M',ingredient.getId());
+            return ingredient;
+        } catch (Exception e) {
+            throw new Exception("Error al guardar Ingrediente con stock Completo: " + e.getMessage(), e);
+        }
+    }
+    @Transactional
+    public Product saveProductWithStock(ProductDTO dto , StockDTO stockDTO) throws Exception {
+        try {
+            Product product = productService.saveProduct(dto);
+            stockDTO.setProductStockID(product.getId());
+            stockService.saveStock(stockDTO,'P',product.getId());
+            return product;
+        } catch (Exception e) {
+            throw new Exception("Error al guardar Producto con stock Completo: " + e.getMessage(), e);
         }
     }
 }
