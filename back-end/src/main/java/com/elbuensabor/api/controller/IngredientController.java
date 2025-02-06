@@ -2,8 +2,10 @@ package com.elbuensabor.api.controller;
 
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
 import com.elbuensabor.api.dto.IngredientDTO;
+import com.elbuensabor.api.dto.IngredientXStockDTO;
 import com.elbuensabor.api.entity.Ingredient;
 import com.elbuensabor.api.service.IngredientService;
+import com.elbuensabor.api.service.MultipleEntitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ public class IngredientController extends GenericControllerImpl<Ingredient, Ingr
 
     @Autowired
     private IngredientService service;
+    @Autowired
+    private MultipleEntitiesService multipleEntitiesService;
 
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
@@ -31,6 +35,14 @@ public class IngredientController extends GenericControllerImpl<Ingredient, Ingr
     public ResponseEntity<?> save(@RequestBody IngredientDTO dto) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.saveIngredient(dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+    @PostMapping(value = "/saveComplete")
+    public ResponseEntity<?> save(@RequestBody IngredientXStockDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(multipleEntitiesService.saveIngredientWithStock(dto.getIngredient(),dto.getStock()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
