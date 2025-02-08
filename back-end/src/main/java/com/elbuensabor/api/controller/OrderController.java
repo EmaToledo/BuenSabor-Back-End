@@ -6,6 +6,7 @@ import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.Order;
 import com.elbuensabor.api.service.CategoryService;
+import com.elbuensabor.api.service.MultipleEntitiesService;
 import com.elbuensabor.api.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
     @Autowired
     private OrderService service;
+    @Autowired
+    private MultipleEntitiesService multipleEntitiesService;
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
 
@@ -80,7 +83,7 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
     @PostMapping("/saveComplete")
     public ResponseEntity<?> saveOrder(@RequestBody OrderDTO dto) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(service.saveOrder(dto));
+            return ResponseEntity.status(HttpStatus.OK).body(multipleEntitiesService.saveOrderWithBill(dto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
