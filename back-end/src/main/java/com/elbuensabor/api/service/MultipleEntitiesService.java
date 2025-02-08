@@ -10,6 +10,5 @@ public interface MultipleEntitiesService {
     ManufacturedProduct saveManufacturedWithRecipe(ManufacturedRecipeDTO dto) throws Exception;
     Ingredient saveIngredientWithStock(IngredientDTO dto, StockDTO stockDTO) throws Exception;
     Product saveProductWithStock(ProductDTO dto, StockDTO stockDTO) throws Exception;
-
-
+    ItemPaymentMarketDTO saveOrderWithBill(OrderDTO dto) throws Exception;
 }

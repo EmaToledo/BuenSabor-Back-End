@@ -12,6 +12,7 @@ import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentRefundClient;
 import com.mercadopago.client.preference.*;
+import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.payment.PaymentRefund;
 import com.mercadopago.resources.preference.Preference;
@@ -97,10 +98,12 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
                     .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + dto.getId())));
 
             return itemPaymentMarketMapper.toDTO(itemPaymentMarketRepository.save(itemPaymentMarket));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw  new Exception(e.getMessage());
+        } catch (MPApiException e) {
+            System.err.println("Código de error: " + e.getApiResponse().getStatusCode());
+            System.err.println("Cuerpo de la respuesta: " + e.getApiResponse().getContent());
+            throw new Exception("Error de MercadoPago: " + e.getApiResponse().getContent());
         }
+
     }
 
 

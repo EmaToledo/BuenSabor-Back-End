@@ -160,19 +160,18 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> new Exception("Orden no encontrado con el ID: " + id));
-            if (order.getPaymentType().equals("mp")) {
-                if (order.getPaid() == PaymentStatus.approved) {
-                    paymentMarketService.fullRefundPayment(id);
-                } else if (order.getPaid() == PaymentStatus.in_process) {
-                    paymentMarketService.cancelPayment(id);
-                }
-            }
+//            if (order.getPaymentType().equals("mp")) {
+//                if (order.getPaid() == PaymentStatus.approved) {
+//                    paymentMarketService.fullRefundPayment(id);
+//                } else if (order.getPaid() == PaymentStatus.in_process) {
+//                    paymentMarketService.cancelPayment(id);
+//                }
+//            }
             billService.cancelBill(order.getId());
             order.setCanceled(true);
             // devuelve el stock de la orden cancelada
             stockService.verifAndDiscountOrAddStock(getOrderDetailDTOList(order), 'A');
             order.setState(OrderStatus.CANCELED);
-
             return orderMapper.toDTO(orderRepository.save(order));
         } catch (Exception e) {
             throw new Exception(e.getMessage());
