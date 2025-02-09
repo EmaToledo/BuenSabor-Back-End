@@ -67,7 +67,7 @@ public class ImageController extends GenericControllerImpl<Image, ImageDTO> {
     }
 
     // URL: http://localhost:4000/api/images/filter/{relationType}/{id}
-    @GetMapping(value = "/filter/{relationType}/{id}")
+    @GetMapping(value = "/public/filter/{relationType}/{id}")
     public ResponseEntity<?> findImagesIdByType(@PathVariable Long id, @PathVariable Character relationType) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(imageService.findImageIdByType(id, relationType));
