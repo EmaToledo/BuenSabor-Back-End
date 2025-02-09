@@ -104,7 +104,6 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
     @Transactional
     public OrderDTO saveOrder(OrderDTO dto) throws Exception {
         try {
-            System.out.println();
             List<OrderDetailDTO> orderDetails = dto.getOrderDetails();
 
             Order order = orderMapper.toEntity(dto);
@@ -167,11 +166,11 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 //                    paymentMarketService.cancelPayment(id);
 //                }
 //            }
-            billService.cancelBill(order.getId());
             order.setCanceled(true);
+            order.setState(OrderStatus.CANCELED);
+            billService.cancelBill(order.getId());
             // devuelve el stock de la orden cancelada
             stockService.verifAndDiscountOrAddStock(getOrderDetailDTOList(order), 'A');
-            order.setState(OrderStatus.CANCELED);
             return orderMapper.toDTO(orderRepository.save(order));
         } catch (Exception e) {
             throw new Exception(e.getMessage());
