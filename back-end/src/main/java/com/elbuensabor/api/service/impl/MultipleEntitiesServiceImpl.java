@@ -82,11 +82,12 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
     @Transactional
     public ItemPaymentMarketDTO saveOrderWithBill(OrderDTO dto) throws Exception {
         try {
+
             dto = orderService.saveOrder(dto);
             BillDTO billDTO = new BillDTO();
             billDTO.setOrderId(dto.getId());
             billService.saveBill(billDTO);
-            billService.sendBillByMail(dto.getId());
+            //billService.sendBillByMail(dto.getId());
             if (dto.getPaymentType().equals("mp")) {
                 return paymentMarketService.savePreferenceID(dto);
             }
