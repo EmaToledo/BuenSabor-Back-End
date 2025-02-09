@@ -40,6 +40,9 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
     @Autowired
     private PaymentMarketService paymentMarketService;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @Transactional
     public ManufacturedProduct saveManufacturedWithRecipe(ManufacturedRecipeDTO dto) throws Exception {
         try {
@@ -83,6 +86,7 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
             BillDTO billDTO = new BillDTO();
             billDTO.setOrderId(dto.getId());
             billService.saveBill(billDTO);
+            billService.sendBillByMail(dto.getId());
             if (dto.getPaymentType().equals("mp")) {
                 return paymentMarketService.savePreferenceID(dto);
             }
