@@ -113,14 +113,14 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
                 order.setUser(userRepository.findById(dto.getUserId()).orElseThrow(() -> new Exception("User not found")));
             }
             order.setDateTime(LocalDateTime.now());
-            /**
+
             // 🔹 Cálculo del tiempo estimado (solo productos manufacturados)
             int estimatedTimeMinutes = calculateEstimatedTime(orderDetails, dto.getDeliveryMethod());
 
             // Convertir minutos a Time antes de asignarlo a order
             LocalTime estimatedLocalTime = LocalTime.of(estimatedTimeMinutes / 60, estimatedTimeMinutes % 60);
             order.setEstimatedTime(Time.valueOf(estimatedLocalTime));
-            */
+
 
             // se verifica que la cantidad pedida se corresponda a la cantidad de stock actual y se reduce si es posible
             if (stockService.verifAndDiscountOrAddStock(dto.getOrderDetails(), 'R')) {
@@ -147,7 +147,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
                 Time cookingTime = detail.getItemManufacturedProduct().getCookingTime();
                 if (cookingTime != null) {
                     LocalTime localCookingTime = cookingTime.toLocalTime();
-                    totalTime += (localCookingTime.getHour() * 60) + localCookingTime.getMinute();
+                    totalTime +=( (localCookingTime.getHour() * 60) + localCookingTime.getMinute()) * detail.getQuantity();
                 }
             }
         }
@@ -155,7 +155,6 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
         int totalDeliveredTime = orderRepository.sumEstimatedTimeForDeliveredOrders();
         // 🔹 Obtener la cantidad de cocineros activos
         int activeCooks = orderRepository.countActiveCooks();
-
         // 🔹 Dividir el tiempo entre los cocineros activos si hay más de 0
         int estimatedTime = totalTime;
         if (activeCooks > 0) {
@@ -166,10 +165,10 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 
         // 🔹 Si el método de entrega es "delivery", sumamos 10 minutos
         if ("delivery".equalsIgnoreCase(deliveryMethod)) {
-            totalTime += 10;
+            estimatedTime += 10;
         }
 
-        return totalTime;
+        return estimatedTime;
     }
 
     @Override
