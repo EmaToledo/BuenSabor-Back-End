@@ -5,6 +5,7 @@ import com.elbuensabor.api.dto.ItemListDTO;
 import com.elbuensabor.api.dto.ItemPaymentMarketDTO;
 import com.elbuensabor.api.dto.OrderDTO;
 import com.elbuensabor.api.entity.Order;
+import com.elbuensabor.api.repository.IOrderRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,4 +19,5 @@ public interface OrderService extends GenericService<Order, OrderDTO, Long>{
     OrderDTO updateOrder(Long id, OrderDTO dto) throws Exception;
     OrderDTO cancelOrder(Long id) throws Exception;
     ItemListDTO getItemsList() throws Exception;
+    OrderDTO updateOrderState(Long id, String newState) throws Exception;
 }
