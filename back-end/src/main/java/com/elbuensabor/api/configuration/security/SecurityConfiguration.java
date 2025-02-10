@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
 
 @Configuration
@@ -35,6 +36,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.OPTIONS).permitAll() // Permitir peticiones OPTIONS sin autenticación
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // Permitir acceso público a la ruta /api/public
                         .requestMatchers(HttpMethod.GET, "/api/categories/public/filter/catalogue").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/images/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/sell/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/manufactured-products/sell/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/order/public/items").permitAll()
