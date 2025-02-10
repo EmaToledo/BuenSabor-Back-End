@@ -4,6 +4,7 @@ import com.elbuensabor.api.service.Auth0TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,8 +56,32 @@ public class Auth0TestController {
      * @return ResponseEntity con un mensaje indicando que el endpoint funciona correctamente.
      */
     @GetMapping(value = "/admin-only")
-    //@PreAuthorize("hasAuthority('read:admin-test')")
+    @PreAuthorize("hasAuthority('read:admin')")
     public ResponseEntity<?> adminOnlyEndPoint() {
         return ResponseEntity.status(HttpStatus.OK).body("ADMIN Endpoint Working fine !");
+    }
+
+    @GetMapping(value = "/cajero-only")
+    @PreAuthorize("hasAuthority('read:cajero')")
+    public ResponseEntity<?> cajeroOnlyEndPoint() {
+        return ResponseEntity.status(HttpStatus.OK).body("CAJERO Endpoint Working fine !");
+    }
+
+    @GetMapping(value = "/concinero-only")
+    @PreAuthorize("hasAuthority('read:cocinero')")
+    public ResponseEntity<?> concineroOnlyEndPoint() {
+        return ResponseEntity.status(HttpStatus.OK).body("COCINERO Endpoint Working fine !");
+    }
+
+    @GetMapping(value = "/delivery-only")
+    @PreAuthorize("hasAuthority('read:delivery')")
+    public ResponseEntity<?> deliveryOnlyEndPoint() {
+        return ResponseEntity.status(HttpStatus.OK).body("DELIVERY Endpoint Working fine !");
+    }
+
+    @GetMapping(value = "/user-only")
+    @PreAuthorize("hasAuthority('read:user')")
+    public ResponseEntity<?> userOnlyEndPoint() {
+        return ResponseEntity.status(HttpStatus.OK).body("USER Endpoint Working fine !");
     }
 }

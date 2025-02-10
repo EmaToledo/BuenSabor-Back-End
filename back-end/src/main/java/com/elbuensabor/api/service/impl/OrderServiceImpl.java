@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,6 +114,14 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
             }
             order.setDateTime(LocalDateTime.now());
 
+            // 🔹 Cálculo del tiempo estimado (solo productos manufacturados)
+            int estimatedTimeMinutes = calculateEstimatedTime(orderDetails, dto.getDeliveryMethod());
+
+            // Convertir minutos a Time antes de asignarlo a order
+            LocalTime estimatedLocalTime = LocalTime.of(estimatedTimeMinutes / 60, estimatedTimeMinutes % 60);
+            order.setEstimatedTime(Time.valueOf(estimatedLocalTime));
+
+
             // se verifica que la cantidad pedida se corresponda a la cantidad de stock actual y se reduce si es posible
             if (stockService.verifAndDiscountOrAddStock(dto.getOrderDetails(), 'R')) {
                 Order savedOrder = orderRepository.save(order);
@@ -127,6 +137,38 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
         } catch (Exception e) {
             throw new Exception("Error saving order: " + e.getMessage(), e);
         }
+    }
+
+    private int calculateEstimatedTime(List<OrderDetailDTO> orderDetails, String deliveryMethod) {
+        int totalTime = 0; // Inicializamos en 0 porque solo contamos productos manufacturados
+
+        for (OrderDetailDTO detail : orderDetails) {
+            if (detail.getItemManufacturedProduct() != null) {
+                Time cookingTime = detail.getItemManufacturedProduct().getCookingTime();
+                if (cookingTime != null) {
+                    LocalTime localCookingTime = cookingTime.toLocalTime();
+                    totalTime +=( (localCookingTime.getHour() * 60) + localCookingTime.getMinute()) * detail.getQuantity();
+                }
+            }
+        }
+        //    Obtener el tiempo de todas las ordenes en cocina
+        int totalDeliveredTime = orderRepository.sumEstimatedTimeForDeliveredOrders();
+        // 🔹 Obtener la cantidad de cocineros activos
+        int activeCooks = orderRepository.countActiveCooks();
+        // 🔹 Dividir el tiempo entre los cocineros activos si hay más de 0
+        int estimatedTime = totalTime;
+        if (activeCooks > 0) {
+            estimatedTime += totalDeliveredTime / activeCooks; // Distribuir el tiempo entre los cocineros
+        }else{
+            estimatedTime += totalDeliveredTime / 1; // Distribuir el tiempo entre los cocineros
+        }
+
+        // 🔹 Si el método de entrega es "delivery", sumamos 10 minutos
+        if ("delivery".equalsIgnoreCase(deliveryMethod)) {
+            estimatedTime += 10;
+        }
+
+        return estimatedTime;
     }
 
     @Override
@@ -212,5 +254,19 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
         itemListDTO.setManufacturedProductDTOList(manufacturedProductMapper.toDTOsList(manufacturedProductRepository.findAvailableManufacturedProducts()));
         itemListDTO.setProductDTOList(productMapper.toDTOsList(productRepository.findAvailableProducts()));
         return itemListDTO;
+    }
+
+    public OrderDTO updateOrderState(Long id, String newState) throws Exception {
+        // Buscar la orden por id
+        Order order = orderRepository.findById(id).orElseThrow(() -> new Exception("Order not found"));
+
+        // Cambiar el estado a nuevo estado
+        order.setState(OrderStatus.valueOf(newState)); // Asegúrate de que el nuevo estado sea válido
+
+        // Guardar la orden actualizada
+        Order updatedOrder = orderRepository.save(order);
+
+        // Convertir la entidad a DTO y retornar
+        return orderMapper.toDTO(updatedOrder);
     }
 }

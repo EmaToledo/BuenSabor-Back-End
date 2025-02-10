@@ -114,9 +114,11 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         if (verifIngredientStock && verifProductStock && (reduceOrAddType == STOCK_REDUCE_TYPE)) { // si el stock es suficiente se reduce
             reduceOrAddStock(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_REDUCE_TYPE); // se reduce el stock de los ingredientes del manufacturado
             reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_REDUCE_TYPE); // se redude el stock de los productos
+            verifAndDisableProductOrManufactured(manufacturedDetailsList, productQuantities); // verifica stock y habilita o deshabilita segun el stock minimo
         } else if (reduceOrAddType == STOCK_ADD_TYPE) { // si hay que devolver stock
             reduceOrAddStock(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_ADD_TYPE); // se agrega el stock de los ingredientes del manufacturado
             reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_ADD_TYPE); // se agrega el stock de los productos
+            verifAndDisableProductOrManufactured(manufacturedDetailsList, productQuantities); // verifica stock y habilita o deshabilita segun el stock minimo
         } else {
             throw new Exception("Ha ocurrido un error");
         }
@@ -196,6 +198,22 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             }
         }
         return true;
+    }
+
+    // todo --> testing
+    public void verifAndDisableProductOrManufactured(List<OrderDetailDTO> manufacturedProductList, Map<Long, Long> prodcutQuantities) throws Exception {
+        if (manufacturedProductList != null) {
+            for (OrderDetailDTO orderDetailDTO : manufacturedProductList) {
+                verifAndDisableByStock(orderDetailDTO.getItemManufacturedProduct().getId(), 'M');
+            }
+        }
+
+        if (prodcutQuantities != null) {
+            for (Map.Entry<Long, Long> entryProducts : prodcutQuantities.entrySet()) {
+                Long productID = entryProducts.getKey();
+                verifAndDisableByStock(productID, 'P');
+            }
+        }
     }
 
     public boolean verifAndDisableByStock(Long id, char type) throws Exception {

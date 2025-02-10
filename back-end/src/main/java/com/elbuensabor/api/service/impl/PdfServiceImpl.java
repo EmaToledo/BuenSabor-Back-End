@@ -14,7 +14,7 @@ import com.lowagie.text.pdf.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.view.document.AbstractPdfView;;
+import org.springframework.web.servlet.view.document.AbstractPdfView;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
