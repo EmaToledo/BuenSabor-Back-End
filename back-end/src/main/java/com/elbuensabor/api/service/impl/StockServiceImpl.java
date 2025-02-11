@@ -32,6 +32,9 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
     @Autowired
     IManufacturedProductRepository iManufacturedProductRepository;
 
+    @Autowired
+    IIngredientRecipeLinkRepository iIngredientRecipeLinkRepository;
+
     private final StockMapper stockMapper = StockMapper.getInstance();
 
     private final char STOCK_RELATION_TYPE_INGREDIENT = 'M';
@@ -69,6 +72,19 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             Stock stock = iStockRepository.findById(id).orElseThrow(() -> new Exception("No se ha encontrado el stock con id: " + id));
             stock.setMinStock(dto.getMinStock());
             stock.setActualStock(dto.getActualStock());
+
+            if (stock.getIngredientStock().getId() != null) {
+                List<IngredientRecipeLink> ingredientRecipeLinksRelatedWithIngredient = iIngredientRecipeLinkRepository.findIngredientsByIngredientId(stock.getIngredientStock().getId());
+
+                for (IngredientRecipeLink ingredientRecipeLink : ingredientRecipeLinksRelatedWithIngredient) {
+                    Long manufacturedProductID = ingredientRecipeLink.getRecipe().getManufacturedProduct().getId();
+                    verifAndDisableByStock(manufacturedProductID, 'M');
+                }
+            } else if (stock.getProductStock().getId() != null) {
+                verifAndDisableByStock(stock.getProductStock().getId(), 'P');
+            }
+
+
             return iStockRepository.save(stock);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
