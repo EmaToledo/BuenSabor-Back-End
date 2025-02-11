@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class ManufacturedProductServiceImpl extends GenericServiceImpl<ManufacturedProduct, ManufacturedProductDTO, Long> implements ManufacturedProductService {
 
@@ -49,7 +52,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
             ManufacturedProduct manufacturedProduct = manufacturedProductMapper.toEntity(dto);
             setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
             manufacturedProduct = manufacturedProductRepository.save(manufacturedProduct);
-            priceService.savePrice(dto.getPrice(),manufacturedProduct.getId(),2);
+            priceService.savePrice(dto.getPrice(), manufacturedProduct.getId(), 2);
             return manufacturedProduct;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -71,7 +74,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
         try {
             ManufacturedProduct manufacturedProduct = manufacturedProductRepository.findById(id)
                     .orElseThrow(() -> new Exception("El producto manufacturado a actualizar no existe."));
-            priceService.savePrice(dto.getPrice(),id,2);
+            priceService.savePrice(dto.getPrice(), id, 2);
             setManufacturedProductCategoryIfExists(dto.getManufacturedProductCategoryID(), manufacturedProduct);
             manufacturedProduct.setDenomination(dto.getDenomination());
             manufacturedProduct.setDescription(dto.getDescription());
@@ -87,7 +90,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     /**
      * Asigna la categoría del producto manufacturado si existe en la base de datos, o la establece como null si no se proporciona una categoría.
      *
-     * @param categoryId ID de la categoría del producto manufacturado.
+     * @param categoryId   ID de la categoría del producto manufacturado.
      * @param manufactured producto manufacturado al cual se le asignará la categoría.
      * @throws Exception si la categoría del producto manufacturado no existe en la base de datos.
      */
@@ -104,7 +107,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     /**
      * Bloquea un producto manufacturado cambiando su disponibilidad.
      *
-     * @param id           ID del producto manufacturado a bloquear.
+     * @param id ID del producto manufacturado a bloquear.
      * @return Producto manufacturado actualizado.
      * @throws Exception si el producto manufacturado no existe o si ocurre algún error durante la operación.
      */
@@ -124,7 +127,7 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     /**
      * Desbloquea un producto manufacturado cambiando su disponibilidad.
      *
-     * @param id           ID del producto manufacturado a desbloquear.
+     * @param id ID del producto manufacturado a desbloquear.
      * @return Producto manufacturado actualizado.
      * @throws Exception si el producto manufacturado no existe o si ocurre algún error durante la operación.
      */
@@ -150,12 +153,13 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
             throw new Exception(e.getMessage());
         }
     }
+
     @Override
     @Transactional
     public ManufacturedProductDTO getManufacturedProductComplete(Long id) throws Exception {
         try {
-            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found"))) ;
-            dto.setPrice(priceService.getPricebyIdFilter(id,2));
+            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found")));
+            dto.setPrice(priceService.getPricebyIdFilter(id, 2));
             return dto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -166,13 +170,30 @@ public class ManufacturedProductServiceImpl extends GenericServiceImpl<Manufactu
     @Transactional
     public ManufacturedProductDTO getManufacturedProductOnlySellPrice(Long id) throws Exception {
         try {
-            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found"))) ;
-            dto.setPrice(priceService.getOnlySellPrice(id,2));
+            ManufacturedProductDTO dto = manufacturedProductMapper.toDTO(manufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("ManufacturedProduct not found")));
+            dto.setPrice(priceService.getOnlySellPrice(id, 2));
             return dto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
+    @Transactional
+    public List<ManufacturedProduct> getManufacturedProductsByCategoryId(Long id) throws Exception {
+        try {
+            List<Long> principalCategoriesIds = categoryRepository.findAvailableManufacturedCategoriesIdsWithoutFather();
+            List<ManufacturedProduct> manufacturedProductList = new ArrayList<>();
+            for (Long principalCategoryId : principalCategoriesIds) {
+                if (principalCategoryId == id) {
+                    manufacturedProductList = manufacturedProductRepository.findAvailableManufacturedProducts();
+                } else {
+                    manufacturedProductList = manufacturedProductRepository.findManufacturedProductByCategory(id);
+                }
+            }
+            return manufacturedProductList;
+        } catch (Exception e) {
+            throw new Exception("Error al mostrar todos los manufacturados segun la categoria");
+        }
+    }
 
 }

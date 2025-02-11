@@ -205,4 +205,13 @@ public class CategoryController extends GenericControllerImpl<Category, Category
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
+
+    @GetMapping("/filter/subcategories/{type}/{id}")
+    public ResponseEntity<?> findRelationCategoriesByIdAndType(@PathVariable String type, @PathVariable Long id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.findRelationCategoriesByIdAndType(type, id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
 }

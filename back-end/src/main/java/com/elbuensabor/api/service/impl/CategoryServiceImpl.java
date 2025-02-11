@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,16 +62,16 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
     @Override
     @Transactional
     public Category updateCategory(Long id, CategoryDTO dto) throws Exception {
-            Category category = categoryRepository.findById(id)
-                    .orElseThrow(() -> new Exception("La categoría a actualizar no existe."));
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new Exception("La categoría a actualizar no existe."));
 
-            setCategoryFatherIfExists(dto.getCategoryFatherId(), category);
-            verifCategoryType(dto, category);
+        setCategoryFatherIfExists(dto.getCategoryFatherId(), category);
+        verifCategoryType(dto, category);
 
-            category.setDenomination(dto.getDenomination());
-            category.setAvailability(dto.getAvailability());
+        category.setDenomination(dto.getDenomination());
+        category.setAvailability(dto.getAvailability());
 
-            return categoryRepository.save(category);
+        return categoryRepository.save(category);
     }
 
     /**
@@ -299,6 +300,18 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
             return genericMapper.toDTOsList(categoryRepository.findAvailableProductAndManufacturedCategoriesWithoutFather());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public List<Category> findRelationCategoriesByIdAndType(String type, Long idCategory) throws Exception {
+        try {
+            System.out.println("type: " + type + " - - id: " + idCategory);
+            List<Category> categoryList = categoryRepository.findRelationCategoriesByIdAndType(type, idCategory);
+            System.out.println(categoryList.size());
+            return categoryList;
+        } catch (Exception e) {
+            throw new Exception("error al encontrar las categorias segun el tipo");
         }
     }
 

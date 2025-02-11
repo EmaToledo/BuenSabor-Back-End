@@ -131,4 +131,13 @@ public class ManufacturedProductController extends GenericControllerImpl<Manufac
         }
     }
 
+    @GetMapping("/list-manufactured/{id}")
+    public ResponseEntity<?> getManufacturedProductsByCategoryId(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getManufacturedProductsByCategoryId(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
 }

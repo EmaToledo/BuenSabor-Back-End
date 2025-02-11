@@ -194,7 +194,6 @@ public class ImageServiceImpl extends GenericServiceImpl<Image, ImageDTO, Long> 
                     break;
                 case IMAGE_RELATION_TYPE_MANUFACTURED_PRODUCT:
                     image = imageRepository.findImageByIdFromManufacturedProducts(relationId);
-                    System.out.println("se encontro imagen: " + image.getName());
                     break;
                 case IMAGE_RELATION_TYPE_PRODUCT:
                     image = imageRepository.findImageByIdFromProducts(relationId);
