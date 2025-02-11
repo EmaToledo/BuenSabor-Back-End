@@ -49,4 +49,15 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
         }
     }
+
+    @GetMapping("/verifActualStockAndQuantity")
+    public ResponseEntity<?> verifActualStockAndQuantity(@RequestBody List<OrderDetailDTO> orderDetailDTOList) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.verifActualStockAndQuantity(orderDetailDTOList));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+
 }
