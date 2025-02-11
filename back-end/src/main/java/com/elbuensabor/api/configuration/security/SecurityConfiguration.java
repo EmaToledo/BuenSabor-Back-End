@@ -40,6 +40,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/products/sell/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/manufactured-products/sell/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/order/public/items").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/filter/manufactured-product").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/filter/product").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/manufactured-products/list-manufactured").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/list-products").permitAll()
                         .anyRequest().authenticated() // Requiere autenticación para cualquier otra ruta
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configurar CORS

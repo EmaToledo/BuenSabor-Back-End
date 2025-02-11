@@ -3,6 +3,8 @@ package com.elbuensabor.api.service;
 import com.elbuensabor.api.dto.ManufacturedProductDTO;
 import com.elbuensabor.api.entity.ManufacturedProduct;
 
+import java.util.List;
+
 public interface ManufacturedProductService extends GenericService<ManufacturedProduct, ManufacturedProductDTO, Long>{
 
     // Guarda un producto manufacturado
@@ -24,4 +26,6 @@ public interface ManufacturedProductService extends GenericService<ManufacturedP
     ManufacturedProductDTO getManufacturedProductComplete(Long id) throws Exception;
 
     ManufacturedProductDTO getManufacturedProductOnlySellPrice(Long id) throws Exception;
+
+    List<ManufacturedProduct> getManufacturedProductsByCategoryId(Long id) throws Exception;
 }
