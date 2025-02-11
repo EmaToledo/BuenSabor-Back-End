@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, Long> implements ProductService {
 
@@ -49,7 +52,7 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
             Product product = productMapper.toEntity(dto);
             setProductCategoryIfExists(dto.getProductCategoryID(), product);
             productRepository.save(product);
-            priceService.savePrice(dto.getPrice(),getLastProductId(),1);
+            priceService.savePrice(dto.getPrice(), getLastProductId(), 1);
             return product;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -71,7 +74,7 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
         try {
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new Exception("El producto a actualizar no existe."));
-            priceService.savePrice(dto.getPrice(),id,1);
+            priceService.savePrice(dto.getPrice(), id, 1);
             setProductCategoryIfExists(dto.getProductCategoryID(), product);
             product.setDenomination(dto.getDenomination());
             product.setAvailability(dto.getAvailability());
@@ -102,7 +105,7 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     /**
      * Bloquea o desbloquea un producto cambiando su disponibilidad.
      *
-     * @param id           ID del producto a bloquear.
+     * @param id ID del producto a bloquear.
      * @return Producto actualizado.
      * @throws Exception si el producto no existe o si ocurre algún error durante la operación.
      */
@@ -122,7 +125,7 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     /**
      * Bloquea o desbloquea un producto cambiando su disponibilidad.
      *
-     * @param id           ID del producto a bloquear.
+     * @param id ID del producto a bloquear.
      * @return Producto actualizado.
      * @throws Exception si el producto no existe o si ocurre algún error durante la operación.
      */
@@ -153,8 +156,8 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     @Transactional
     public ProductDTO getProductComplete(Long id) throws Exception {
         try {
-            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found"))) ;
-            dto.setPrice(priceService.getPricebyIdFilter(id,1));
+            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found")));
+            dto.setPrice(priceService.getPricebyIdFilter(id, 1));
             return dto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -165,12 +168,38 @@ public class ProductServiceImpl extends GenericServiceImpl<Product, ProductDTO, 
     @Transactional
     public ProductDTO getProductOnlySellPrice(Long id) throws Exception {
         try {
-            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found"))) ;
-            dto.setPrice(priceService.getOnlySellPrice(id,1));
+            ProductDTO dto = productMapper.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("Product not found")));
+            dto.setPrice(priceService.getOnlySellPrice(id, 1));
             return dto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
+
+    @Transactional
+    public List<Product> getProductsByCategoryId(Long id) throws Exception {
+        try {
+            // Lista para almacenar los productos
+            List<Product> productList = new ArrayList<>();
+
+            // Verificar si la categoría proporcionada es un padre
+            List<Long> childCategories = categoryRepository.findIdsByParentCategoryId(id);
+
+            if (!childCategories.isEmpty()) {
+                // Si hay subcategorías (hijos), recorremos las subcategorías y traemos los productos de ellas
+                for (Long childCategoryId : childCategories) {
+                    productList.addAll(productRepository.findProductByCategory(childCategoryId));
+                }
+            } else {
+                // Si no hay subcategorías, simplemente buscamos los productos de la categoría padre
+                productList.addAll(productRepository.findProductByCategory(id));
+            }
+
+            return productList;
+        } catch (Exception e) {
+            throw new Exception("Error al mostrar todos los productos según la categoría");
+        }
+    }
+
 
 }

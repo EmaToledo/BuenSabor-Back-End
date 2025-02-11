@@ -13,4 +13,7 @@ public interface IProductRepository  extends IGenericRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.availability = true")
     List<Product> findAvailableProducts();
+
+    @Query("SELECT p FROM Product p WHERE p.productCategory.id = :idCategory")
+    List<Product> findProductByCategory(Long idCategory);
 }

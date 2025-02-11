@@ -128,5 +128,13 @@ public class ProductController extends GenericControllerImpl<Product, ProductDTO
         }
     }
 
+    @GetMapping("/list-products/{id}")
+    public ResponseEntity<?> getProductsByCategoryId(@PathVariable Long id) {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.getProductsByCategoryId(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
 
 }

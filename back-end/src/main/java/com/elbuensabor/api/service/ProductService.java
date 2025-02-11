@@ -3,6 +3,8 @@ package com.elbuensabor.api.service;
 import com.elbuensabor.api.dto.ProductDTO;
 import com.elbuensabor.api.entity.Product;
 
+import java.util.List;
+
 public interface ProductService extends GenericService<Product, ProductDTO, Long> {
 
     // Guarda un producto
@@ -24,5 +26,7 @@ public interface ProductService extends GenericService<Product, ProductDTO, Long
     ProductDTO getProductComplete(Long id) throws Exception;
 
     ProductDTO  getProductOnlySellPrice (Long id) throws Exception;
+
+    List<Product> getProductsByCategoryId(Long id) throws Exception;
 
 }
