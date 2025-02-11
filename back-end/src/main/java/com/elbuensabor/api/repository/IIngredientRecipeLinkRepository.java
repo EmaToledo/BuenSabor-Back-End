@@ -22,7 +22,7 @@ public interface IIngredientRecipeLinkRepository extends IGenericRepository<Ingr
     @Query("SELECT i FROM IngredientRecipeLink iml " +
             "JOIN iml.ingredient i " +
             "WHERE iml.ingredient.id = :idIngredient")
-    IngredientRecipeLink findIngredientsByIngredientId(@Param("idIngredient") Long idIngredient);
+    List<IngredientRecipeLink> findIngredientsByIngredientId(@Param("idIngredient") Long idIngredient);
 
     // modifica el query de delete para que elimine una relacion por el id del ingrediente
     @Modifying
