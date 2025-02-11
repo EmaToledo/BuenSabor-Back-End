@@ -1,9 +1,6 @@
 package com.elbuensabor.api.service;
 
-import com.elbuensabor.api.dto.CartItemDTO;
-import com.elbuensabor.api.dto.ItemListDTO;
-import com.elbuensabor.api.dto.ItemPaymentMarketDTO;
-import com.elbuensabor.api.dto.OrderDTO;
+import com.elbuensabor.api.dto.*;
 import com.elbuensabor.api.entity.Order;
 import com.elbuensabor.api.repository.IOrderRepository;
 
@@ -18,6 +15,6 @@ public interface OrderService extends GenericService<Order, OrderDTO, Long>{
     OrderDTO saveOrder(OrderDTO dto) throws Exception;
     OrderDTO updateOrder(Long id, OrderDTO dto) throws Exception;
     OrderDTO cancelOrder(Long id) throws Exception;
-    ItemListDTO getItemsList() throws Exception;
+    List<DenominationXImageDto> getItemsList() throws Exception;
     OrderDTO updateOrderState(Long id, String newState) throws Exception;
 }

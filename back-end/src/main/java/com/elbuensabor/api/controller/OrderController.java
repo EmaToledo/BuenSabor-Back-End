@@ -25,7 +25,6 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
 
     private MultipleEntitiesService multipleEntitiesService;
 
-    private OrderService IorderService;
 
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
@@ -150,10 +149,9 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
      *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
      */
     @PutMapping("/updateState")
-    public ResponseEntity<OrderDTO> updateOrderState(@RequestBody UpdateOrderStateRequest request) {
+    public ResponseEntity<?> updateOrderState(@RequestBody UpdateOrderStateRequest request) {
         try {
-            OrderDTO updatedOrder = IorderService.updateOrderState(request.getId(), request.getNewState());
-            return ResponseEntity.ok(updatedOrder);
+            return ResponseEntity.ok(service.updateOrderState(request.getId(), request.getNewState()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

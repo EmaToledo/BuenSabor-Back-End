@@ -249,13 +249,45 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 
     @Override
     @Transactional(readOnly = true)
-    public ItemListDTO getItemsList() {
-        ItemListDTO itemListDTO = new ItemListDTO();
-        itemListDTO.setManufacturedProductDTOList(manufacturedProductMapper.toDTOsList(manufacturedProductRepository.findAvailableManufacturedProducts()));
-        itemListDTO.setProductDTOList(productMapper.toDTOsList(productRepository.findAvailableProducts()));
-        return itemListDTO;
+    public List<DenominationXImageDto> getItemsList() {
+        long contador = 1;
+        List<Object[]> results = productRepository.findAvailableProductsXImage();
+        List<Object[]> results2 = manufacturedProductRepository.findAvailableManufacturedProductsXImage();
+
+        List<DenominationXImageDto> items = new ArrayList<>();
+
+        // Procesar productos manufacturados
+        for (Object[] row : results2) {
+            DenominationXImageDto item = new DenominationXImageDto();
+            item.setId(contador);
+            item.setItemID((Long) row[0]);
+            item.setItemDenomination((String) row[1]);
+            item.setImageDenomination((String) row[2]);
+            item.setCategoryId((Long) row[3]);
+            items.add(item);
+            item.setType("M");
+            contador++;
+        }
+
+        // Procesar productos
+        for (Object[] row : results) {
+            DenominationXImageDto item = new DenominationXImageDto();
+            item.setId(contador);
+            item.setItemID((Long) row[0]);
+            item.setItemDenomination((String) row[1]);
+            item.setImageDenomination((String) row[2]);
+            item.setCategoryId((Long) row[3]);
+            item.setType("P");
+            items.add(item);
+            contador++;
+        }
+
+
+
+        return items;
     }
 
+    @Transactional()
     public OrderDTO updateOrderState(Long id, String newState) throws Exception {
         // Buscar la orden por id
         Order order = orderRepository.findById(id).orElseThrow(() -> new Exception("Order not found"));

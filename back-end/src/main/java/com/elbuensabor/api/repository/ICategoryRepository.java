@@ -36,8 +36,10 @@ public interface ICategoryRepository extends IGenericRepository<Category, Long> 
     List<Category> findGeneralCategories();
 
     // Busca las categorías de productos y manufacturados con disponibilidad y sin categoría padre
-    @Query("SELECT c FROM Category c WHERE (c.type = 'P' OR c.type = 'M') AND c.availability = true AND c.fatherCategory IS NULL")
+    @Query("SELECT c FROM Category c WHERE (c.type = 'P' OR c.type = 'M') AND c.availability = true AND c.fatherCategory IS NOT NULL")
     List<Category> findAvailableProductAndManufacturedCategoriesWithoutFather();
+    @Query("SELECT c FROM Category c WHERE (c.type = 'P' OR c.type = 'M') AND c.availability = true AND c.fatherCategory IS NULL")
+    List<Category> findAvailableProductAndManufacturedCategoriesWithoutFather2();
 
     @Query("SELECT c.id FROM Category c WHERE (c.type = 'P') AND c.availability = true AND c.fatherCategory IS NULL")
     List<Long> findAvailableProductCategoriesIdsWithoutFather();

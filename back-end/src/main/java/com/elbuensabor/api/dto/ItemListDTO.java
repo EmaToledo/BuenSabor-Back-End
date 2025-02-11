@@ -9,7 +9,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class ItemListDTO {
 
-    private List<ProductDTO> productDTOList;
-    private List<ManufacturedProductDTO> manufacturedProductDTOList;
+    private List<DenominationXImageDto> productDTOList;
+    private List<DenominationXImageDto> manufacturedProductDTOList;
 
 }
