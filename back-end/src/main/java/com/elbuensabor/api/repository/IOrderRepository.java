@@ -19,4 +19,10 @@ public interface IOrderRepository extends IGenericRepository<Order, Long>{
 
     @Query("SELECT o FROM Order o WHERE o.state = :state")
     List<Order> findAllByOrderstate(@Param("state") boolean state);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = 2 AND u.logged = TRUE")
+    int countActiveCooks();
+
+    @Query("SELECT COALESCE(SUM(HOUR(o.estimatedTime) * 60 + MINUTE(o.estimatedTime)), 0) FROM Order o WHERE o.state = 'PREPARATION'")
+    int sumEstimatedTimeForDeliveredOrders();
 }

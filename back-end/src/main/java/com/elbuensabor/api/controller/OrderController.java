@@ -3,6 +3,7 @@ package com.elbuensabor.api.controller;
 import com.elbuensabor.api.controller.impl.GenericControllerImpl;
 import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.dto.OrderDTO;
+import com.elbuensabor.api.dto.UpdateOrderStateRequest;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.entity.Order;
 import com.elbuensabor.api.service.CategoryService;
@@ -21,7 +22,11 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
     @Autowired
     private OrderService service;
     @Autowired
+
     private MultipleEntitiesService multipleEntitiesService;
+
+    private OrderService IorderService;
+
     private static final String ERROR_MESSAGE = "{\"error\":\"Error. Por favor intente nuevamente.\"}";
 
 
@@ -134,6 +139,23 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
             return ResponseEntity.status(HttpStatus.OK).body(service.getItemsList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Cambia el estado de la Orden dependiendo de que estado recibe
+     * URL: http://localhost:4000/api/order/updateState
+     * @requesbody es un objeto con el dato del id de la orden a modificar y newstate con el stado nuevo
+     * @return ResponseEntity modifica el dato status de la tabla user_order.
+     *         HttpStatus OK si la operación se realiza correctamente, o BAD_REQUEST si hay un error.
+     */
+    @PutMapping("/updateState")
+    public ResponseEntity<OrderDTO> updateOrderState(@RequestBody UpdateOrderStateRequest request) {
+        try {
+            OrderDTO updatedOrder = IorderService.updateOrderState(request.getId(), request.getNewState());
+            return ResponseEntity.ok(updatedOrder);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
