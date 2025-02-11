@@ -7,6 +7,7 @@ import com.elbuensabor.api.entity.User;
 import com.elbuensabor.api.mapper.ItemPaymentMarketMapper;
 import com.elbuensabor.api.repository.IItemPaymentMarketRepository;
 import com.elbuensabor.api.repository.IOrderRepository;
+import com.elbuensabor.api.service.BillService;
 import com.elbuensabor.api.service.PaymentMarketService;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
@@ -44,7 +45,8 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
     private IItemPaymentMarketRepository itemPaymentMarketRepository;
     @Autowired
     private ItemPaymentMarketMapper itemPaymentMarketMapper;
-
+    @Autowired
+    private BillService billService;
 
     @Transactional
     @Override
@@ -215,6 +217,9 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
             ItemPaymentMarket itemPaymentMarket = itemPaymentMarketRepository.findItemPaymentMarketByPreferenceId(dto.getPreferenceId());
             if (dto.getStatus() != null){
             itemPaymentMarket.getOrder().setPaid(dto.getStatus());
+            if (dto.getStatus() == PaymentStatus.approved){
+                 billService.sendBillByMail(itemPaymentMarket.getOrder().getId());
+            }
             }else{
                 itemPaymentMarket.getOrder().setPaid(PaymentStatus.rejected);
             }

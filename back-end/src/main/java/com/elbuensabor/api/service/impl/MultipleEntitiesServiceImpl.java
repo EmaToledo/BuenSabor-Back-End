@@ -86,11 +86,12 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
             BillDTO billDTO = new BillDTO();
             billDTO.setOrderId(dto.getId());
             billService.saveBill(billDTO);
-            billService.sendBillByMail(dto.getId());
             if (dto.getPaymentType().equals("mp")) {
                 return paymentMarketService.savePreferenceID(dto);
+            } else {
+                billService.sendBillByMail(dto.getId());
+                return null;
             }
-            return null;
         } catch (Exception e) {
             throw new Exception("Error al guardar Producto con stock Completo: " + e.getMessage(), e);
         }
