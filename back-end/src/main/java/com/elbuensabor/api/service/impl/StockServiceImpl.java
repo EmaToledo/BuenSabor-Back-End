@@ -32,6 +32,9 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
     @Autowired
     IManufacturedProductRepository iManufacturedProductRepository;
 
+    @Autowired
+    IIngredientRecipeLinkRepository iIngredientRecipeLinkRepository;
+
     private final StockMapper stockMapper = StockMapper.getInstance();
 
     private final char STOCK_RELATION_TYPE_INGREDIENT = 'M';
@@ -69,6 +72,19 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             Stock stock = iStockRepository.findById(id).orElseThrow(() -> new Exception("No se ha encontrado el stock con id: " + id));
             stock.setMinStock(dto.getMinStock());
             stock.setActualStock(dto.getActualStock());
+
+            if (stock.getIngredientStock().getId() != null) {
+                List<IngredientRecipeLink> ingredientRecipeLinksRelatedWithIngredient = iIngredientRecipeLinkRepository.findIngredientsByIngredientId(stock.getIngredientStock().getId());
+
+                for (IngredientRecipeLink ingredientRecipeLink : ingredientRecipeLinksRelatedWithIngredient) {
+                    Long manufacturedProductID = ingredientRecipeLink.getRecipe().getManufacturedProduct().getId();
+                    verifAndDisableByStock(manufacturedProductID, 'M');
+                }
+            } else if (stock.getProductStock().getId() != null) {
+                verifAndDisableByStock(stock.getProductStock().getId(), 'P');
+            }
+
+
             return iStockRepository.save(stock);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -96,7 +112,6 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
     // verifica si es posible la orden segun el stock actual y si es posible lo reduce
     public boolean verifAndDiscountOrAddStock(List<OrderDetailDTO> orderDetailsDtos, char reduceOrAddType) throws Exception {
-        boolean verifIngredientStock, verifProductStock;
 
         // se distinguen los order details por productos y manufacturados para hacer su respectivo descuento de stock
         List<OrderDetailDTO> productsDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailsDtos, STOCK_RELATION_TYPE_PRODUCT);
@@ -107,11 +122,7 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         // map que contendra el id producto y la cantidad
         Map<Long, Long> productQuantities = setMapProducts(productsDetailsList);
 
-        // se verifica que haya el stock necesario para la orden
-        verifIngredientStock = verifActualStockAndOrderQuantity(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT);
-        verifProductStock = verifActualStockAndOrderQuantity(productQuantities, STOCK_RELATION_TYPE_PRODUCT);
-
-        if (verifIngredientStock && verifProductStock && (reduceOrAddType == STOCK_REDUCE_TYPE)) { // si el stock es suficiente se reduce
+        if (reduceOrAddType == STOCK_REDUCE_TYPE) { // si el stock es suficiente se reduce
             reduceOrAddStock(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT, STOCK_REDUCE_TYPE); // se reduce el stock de los ingredientes del manufacturado
             reduceOrAddStock(productQuantities, STOCK_RELATION_TYPE_PRODUCT, STOCK_REDUCE_TYPE); // se redude el stock de los productos
             verifAndDisableProductOrManufactured(manufacturedDetailsList, productQuantities); // verifica stock y habilita o deshabilita segun el stock minimo
@@ -198,6 +209,24 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             }
         }
         return true;
+    }
+
+    public boolean verifActualStockAndQuantity(List<OrderDetailDTO> orderDetailDTOList) throws Exception {
+        boolean ingredientQuantity;
+        boolean productQuantity;
+        // se distinguen los order details por productos y manufacturados para hacer su respectivo descuento de stock
+        List<OrderDetailDTO> productsDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailDTOList, STOCK_RELATION_TYPE_PRODUCT);
+        List<OrderDetailDTO> manufacturedDetailsList = distinctOrderDetailsByProductsAndManufactured(orderDetailDTOList, STOCK_RELATION_TYPE_INGREDIENT);
+
+        // map que contendra el id ingrediente y la cantidad
+        Map<Long, Long> ingredientQuantities = setMapManufacturedProduct(manufacturedDetailsList);
+        // map que contendra el id producto y la cantidad
+        Map<Long, Long> productQuantities = setMapProducts(productsDetailsList);
+
+        ingredientQuantity = verifActualStockAndOrderQuantity(ingredientQuantities, STOCK_RELATION_TYPE_INGREDIENT);
+        productQuantity = verifActualStockAndOrderQuantity(productQuantities, STOCK_RELATION_TYPE_PRODUCT);
+
+        return (ingredientQuantity && productQuantity);
     }
 
     // todo --> testing
