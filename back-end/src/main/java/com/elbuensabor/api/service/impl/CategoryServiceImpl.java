@@ -1,5 +1,6 @@
 package com.elbuensabor.api.service.impl;
 
+import com.elbuensabor.api.dto.CategoryChildsDTO;
 import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 import com.elbuensabor.api.mapper.CategoryMapper;
@@ -295,23 +296,20 @@ public class CategoryServiceImpl extends GenericServiceImpl<Category, CategoryDT
      * @return Lista de categorías generales
      * @throws Exception Si ocurre algún error al obtener las categorías
      */
-    public List<CategoryDTO> findProductAndManufacturedProductCategories() throws Exception {
+    public List<CategoryChildsDTO> findProductAndManufacturedProductCategories() throws Exception {
         try {
-            return genericMapper.toDTOsList(categoryRepository.findAvailableProductAndManufacturedCategoriesWithoutFather());
+            List<Category> categoryFatherList = categoryRepository.findAvailableProductAndManufacturedCategoriesWithoutFather();
+            List<CategoryChildsDTO> catalogueList = new ArrayList<>();
+
+            for (Category categoryFather : categoryFatherList) {
+                CategoryChildsDTO individualCatalogueCategory = categoryMapper.toChildsDTO(categoryFather);
+                individualCatalogueCategory.setChilds(categoryRepository.findByParentCategoryIdAvailable(individualCatalogueCategory.getId()));
+                catalogueList.add(individualCatalogueCategory);
+            }
+
+            return catalogueList;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public List<Category> findRelationCategoriesByIdAndType(String type, Long idCategory) throws Exception {
-        try {
-            System.out.println("type: " + type + " - - id: " + idCategory);
-            List<Category> categoryList = categoryRepository.findRelationCategoriesByIdAndType(type, idCategory);
-            System.out.println(categoryList.size());
-            return categoryList;
-        } catch (Exception e) {
-            throw new Exception("error al encontrar las categorias segun el tipo");
         }
     }
 
