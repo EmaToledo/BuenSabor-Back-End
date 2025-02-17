@@ -210,7 +210,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 //            }
             order.setCanceled(true);
             order.setState(OrderStatus.CANCELED);
-            billService.cancelBill(order.getId());
+           // billService.cancelBill(order.getId());
             // devuelve el stock de la orden cancelada
             stockService.verifAndDiscountOrAddStock(getOrderDetailDTOList(order), 'A');
             return orderMapper.toDTO(orderRepository.save(order));
@@ -294,6 +294,20 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 
         // Cambiar el estado a nuevo estado
         order.setState(OrderStatus.valueOf(newState)); // Asegúrate de que el nuevo estado sea válido
+
+        // Guardar la orden actualizada
+        Order updatedOrder = orderRepository.save(order);
+
+        // Convertir la entidad a DTO y retornar
+        return orderMapper.toDTO(updatedOrder);
+    }
+    @Transactional()
+    public OrderDTO updateOrderReady(Long id) throws Exception {
+        // Buscar la orden por id
+        Order order = orderRepository.findById(id).orElseThrow(() -> new Exception("Order not found"));
+
+        // Cambiar el estado a nuevo estado
+        order.setState(OrderStatus.READY);
 
         // Guardar la orden actualizada
         Order updatedOrder = orderRepository.save(order);

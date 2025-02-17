@@ -17,4 +17,5 @@ public interface OrderService extends GenericService<Order, OrderDTO, Long>{
     OrderDTO cancelOrder(Long id) throws Exception;
     List<DenominationXImageDto> getItemsList() throws Exception;
     OrderDTO updateOrderState(Long id, String newState) throws Exception;
+    OrderDTO updateOrderReady(Long id) throws Exception;
 }

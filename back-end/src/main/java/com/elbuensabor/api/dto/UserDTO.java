@@ -19,4 +19,5 @@ public class UserDTO extends GenericDTO {
     private String name;
     private String lastName;
     private String apartment;
+    private Long descuento;
 }

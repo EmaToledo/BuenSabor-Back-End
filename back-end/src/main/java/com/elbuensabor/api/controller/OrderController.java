@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
     @Autowired
     private OrderService service;
-    @Autowired
 
+    @Autowired
     private MultipleEntitiesService multipleEntitiesService;
 
 
@@ -151,7 +151,16 @@ public class OrderController extends GenericControllerImpl<Order, OrderDTO> {
     @PutMapping("/updateState")
     public ResponseEntity<?> updateOrderState(@RequestBody UpdateOrderStateRequest request) {
         try {
+            System.out.println(request.getId() + " " + request.getNewState());
             return ResponseEntity.ok(service.updateOrderState(request.getId(), request.getNewState()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+    @PutMapping("/ready/{id}")
+    public ResponseEntity<?> updateOrderReady(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.updateOrderReady(id));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

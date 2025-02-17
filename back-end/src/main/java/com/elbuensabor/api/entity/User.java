@@ -45,4 +45,7 @@ public class User extends GenericEntity {
     @JoinColumn(name = "id_rol")
     private Role role;
 
+    @Column(name = "descuento")
+    private Long descuento;
+
 }
