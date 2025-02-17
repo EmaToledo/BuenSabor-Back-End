@@ -20,15 +20,15 @@ public interface ICategoryRepository extends IGenericRepository<Category, Long> 
     List<Long> findIdsByParentCategoryId(Long parentId);
 
     // Busca las categorías de productos
-    @Query("SELECT c FROM Category c WHERE c.type = 'P' AND c.availability = true AND c.fatherCategory IS NOT NULL")
+    @Query("SELECT c FROM Category c WHERE c.type = 'P' AND c.availability = true") // para tablas
     List<Category> findProductCategories();
 
     // Busca las categorías de ingredientes
-    @Query("SELECT c FROM Category c WHERE c.type = 'I' AND c.availability = true AND c.fatherCategory IS NOT NULL")
+    @Query("SELECT c FROM Category c WHERE c.type = 'I' AND c.availability = true") // para tablas
     List<Category> findIngredientCategories();
 
     // Busca las categorías de productos manufacturados
-    @Query("SELECT c FROM Category c WHERE c.type = 'M' AND c.availability = true AND c.fatherCategory IS NOT NULL")
+    @Query("SELECT c FROM Category c WHERE c.type = 'M' AND c.availability = true") // para tablas
     List<Category> findManufacturedProductCategories();
 
     // Busca las categorías generales
