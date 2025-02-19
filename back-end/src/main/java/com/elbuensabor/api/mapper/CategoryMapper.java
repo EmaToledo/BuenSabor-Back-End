@@ -1,5 +1,6 @@
 package com.elbuensabor.api.mapper;
 
+import com.elbuensabor.api.dto.CategoryChildsDTO;
 import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 import org.mapstruct.Mapper;
@@ -18,6 +19,10 @@ public interface CategoryMapper extends GenericMapper<Category, CategoryDTO> {
     @Mapping(source = "fatherCategory.id", target = "categoryFatherId")
     @Mapping(source = "fatherCategory.denomination", target = "categoryFatherDenomination")
     CategoryDTO toDTO(Category source);
+
+    @Mapping(source = "fatherCategory.id", target = "categoryFatherId")
+    @Mapping(source = "fatherCategory.denomination", target = "categoryFatherDenomination")
+    CategoryChildsDTO toChildsDTO(Category source);
 
     // Mapea un DTO CategoryDTO a una entidad Category
     @Mapping(target = "fatherCategory", ignore = true)

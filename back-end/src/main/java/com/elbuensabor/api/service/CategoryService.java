@@ -1,5 +1,6 @@
 package com.elbuensabor.api.service;
 
+import com.elbuensabor.api.dto.CategoryChildsDTO;
 import com.elbuensabor.api.dto.CategoryDTO;
 import com.elbuensabor.api.entity.Category;
 
@@ -41,8 +42,6 @@ public interface CategoryService extends GenericService<Category, CategoryDTO, L
     List<CategoryDTO> findGeneralCategories() throws Exception;
 
     // Obtiene todas las categorías generales
-    List<CategoryDTO> findProductAndManufacturedProductCategories() throws Exception;
-
-    List<Category> findRelationCategoriesByIdAndType(String type, Long idCategory) throws Exception;
+    List<CategoryChildsDTO> findProductAndManufacturedProductCategories() throws Exception;
 
 }
