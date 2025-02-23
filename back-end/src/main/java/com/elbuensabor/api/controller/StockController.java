@@ -50,7 +50,7 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
         }
     }
 
-    @GetMapping("/verifActualStockAndQuantity")
+    @PostMapping("/verifActualStockAndQuantity")
     public ResponseEntity<?> verifActualStockAndQuantity(@RequestBody List<OrderDetailDTO> orderDetailDTOList) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(service.verifActualStockAndQuantity(orderDetailDTOList));

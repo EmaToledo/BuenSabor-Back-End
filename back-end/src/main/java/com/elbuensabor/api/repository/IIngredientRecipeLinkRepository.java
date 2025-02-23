@@ -19,7 +19,10 @@ public interface IIngredientRecipeLinkRepository extends IGenericRepository<Ingr
     List<IngredientRecipeLink> findIngredientsByRecipeId(@Param("idRecipe") Long idRecipe);
 
     // llama a la relacion mediante el id del ingrediente
-    @Query("SELECT i FROM IngredientRecipeLink iml " +
+//    @Query("SELECT i FROM IngredientRecipeLink iml " +
+//            "JOIN iml.ingredient i " +
+//            "WHERE iml.ingredient.id = :idIngredient")
+    @Query("SELECT iml FROM IngredientRecipeLink iml " +
             "JOIN iml.ingredient i " +
             "WHERE iml.ingredient.id = :idIngredient")
     List<IngredientRecipeLink> findIngredientsByIngredientId(@Param("idIngredient") Long idIngredient);

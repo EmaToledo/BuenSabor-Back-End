@@ -210,7 +210,7 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 //            }
             order.setCanceled(true);
             order.setState(OrderStatus.CANCELED);
-           // billService.cancelBill(order.getId());
+            billService.cancelBill(order.getId());
             // devuelve el stock de la orden cancelada
             stockService.verifAndDiscountOrAddStock(getOrderDetailDTOList(order), 'A');
             return orderMapper.toDTO(orderRepository.save(order));
