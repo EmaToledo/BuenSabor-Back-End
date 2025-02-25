@@ -21,5 +21,5 @@ public interface StockService extends GenericService<Stock, StockDTO, Long>{
 
     boolean verifActualStockAndQuantity(List<OrderDetailDTO> orderDetailDTOList) throws Exception;
 
-    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value);
+    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value) throws Exception;
 }

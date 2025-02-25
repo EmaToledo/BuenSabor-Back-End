@@ -107,7 +107,7 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
     }
 
-    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value) {
+    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value) throws Exception {
         boolean allVerif = false;
 
         List<Stock> stockList = new ArrayList<>();
@@ -118,18 +118,21 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             stockList = iStockRepository.findAll();
         }
 
-        for (Stock actualStock : stockList) {
+        Map<Long, Long> mapBulk = setMapForBulkTransactionall(stockList, value);
+        if (verifActualStockAndOrderQuantity(mapBulk, STOCK_RELATION_TYPE_PRODUCT) && verifActualStockAndOrderQuantity(mapBulk, STOCK_RELATION_TYPE_INGREDIENT)) {
+            for (Stock actualStock : stockList) {
 
-            if (reduceOrAddType == STOCK_REDUCE_TYPE) {
-                actualStock.setActualStock(actualStock.getActualStock() - value);
-                System.out.println("se quito al stock id: " + actualStock.getId() + " - " + value);
-                allVerif = true;
-            } else if (reduceOrAddType == STOCK_ADD_TYPE) {
-                actualStock.setActualStock(actualStock.getActualStock() + value);
-                System.out.println("se agrego al stock id: " + actualStock.getId() + " + " + value);
-                allVerif = true;
+                if (reduceOrAddType == STOCK_REDUCE_TYPE) {
+                    actualStock.setActualStock(actualStock.getActualStock() - value);
+                    System.out.println("se quito al stock id: " + actualStock.getId() + " - " + value);
+                    allVerif = true;
+                } else if (reduceOrAddType == STOCK_ADD_TYPE) {
+                    actualStock.setActualStock(actualStock.getActualStock() + value);
+                    System.out.println("se agrego al stock id: " + actualStock.getId() + " + " + value);
+                    allVerif = true;
+                }
+                iStockRepository.save(actualStock);
             }
-            iStockRepository.save(actualStock);
         }
         return allVerif;
     }
