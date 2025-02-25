@@ -218,7 +218,7 @@ public class PaymentMarketServiceImpl implements PaymentMarketService {
             if (dto.getStatus() != null){
             itemPaymentMarket.getOrder().setPaid(dto.getStatus());
             if (dto.getStatus() == PaymentStatus.approved){
-                 billService.sendBillByMail(itemPaymentMarket.getOrder().getId());
+                 //billService.sendBillByMail(itemPaymentMarket.getOrder().getId());
             }
             }else{
                 itemPaymentMarket.getOrder().setPaid(PaymentStatus.rejected);
