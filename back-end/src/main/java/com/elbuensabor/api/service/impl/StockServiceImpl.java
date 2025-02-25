@@ -109,11 +109,17 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
     public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value) {
         boolean allVerif = false;
-        List<Stock> stockList = iStockRepository.findStockByIngredientCategory(categoryID);
-        stockList.addAll(iStockRepository.findStockByProductCategory(categoryID));
+
+        List<Stock> stockList = new ArrayList<>();
+        if (categoryID != null) {
+            stockList = iStockRepository.findStockByIngredientCategory(categoryID);
+            stockList.addAll(iStockRepository.findStockByProductCategory(categoryID));
+        } else {
+            stockList = iStockRepository.findStockByIngredientCategoryAll();
+            stockList.addAll(iStockRepository.findStockByProductCategoryAll());
+        }
 
         for (Stock actualStock : stockList) {
-            Optional<Stock> stock = iStockRepository.findById(actualStock.getId());
 
             if (reduceOrAddType == STOCK_REDUCE_TYPE) {
                 actualStock.setActualStock(actualStock.getActualStock() - value);

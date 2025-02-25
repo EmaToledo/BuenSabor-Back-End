@@ -20,4 +20,10 @@ public interface IStockRepository extends IGenericRepository<Stock, Long> {
 
     @Query("SELECT s FROM Stock s INNER JOIN Product p ON s.productStock.id = p.id WHERE p.productCategory.id = :categoryID")
     List<Stock> findStockByProductCategory(Long categoryID);
+
+    @Query("SELECT s FROM Stock s INNER JOIN Product p ON s.productStock.id = p.id WHERE p.productCategory.id")
+    List<Stock> findStockByProductCategoryAll();
+
+    @Query("SELECT s FROM Stock s INNER JOIN Ingredient i ON s.ingredientStock.id = i.id WHERE i.ingredientCategory.id")
+    List<Stock> findStockByIngredientCategoryAll();
 }
