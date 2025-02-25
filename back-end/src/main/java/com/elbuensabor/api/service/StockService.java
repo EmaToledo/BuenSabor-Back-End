@@ -20,4 +20,6 @@ public interface StockService extends GenericService<Stock, StockDTO, Long>{
     boolean verifAndDisableByStock(Long id, char type) throws Exception;
 
     boolean verifActualStockAndQuantity(List<OrderDetailDTO> orderDetailDTOList) throws Exception;
+
+    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value);
 }
