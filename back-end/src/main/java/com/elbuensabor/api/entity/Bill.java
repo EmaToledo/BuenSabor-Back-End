@@ -22,7 +22,8 @@ public class Bill  extends GenericEntity {
     @JoinColumn(name = "id_order")
     private Order order;
 
-    @Column(name = "PDF_base64", columnDefinition = "TEXT")
+    @Column(name = "pdf_base64", columnDefinition = "LONGTEXT")
     private String pdf;
+
 
 }
