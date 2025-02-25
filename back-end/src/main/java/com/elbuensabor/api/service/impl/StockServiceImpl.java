@@ -249,9 +249,9 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         try {
             Stock stock;
             boolean isMoreThanMinStock = true;
-            ManufacturedProduct manufacturedProduct = iManufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("No se encontro el producto manufacturado"));
 
             if (type == STOCK_RELATION_TYPE_INGREDIENT) {
+                ManufacturedProduct manufacturedProduct = iManufacturedProductRepository.findById(id).orElseThrow(() -> new Exception("No se encontro el producto manufacturado"));
                 List<IngredientRecipeLink> ingredientRecipeLinks = iManufacturedProductRepository.findManufacturedProductIngredients(id);
                 for (IngredientRecipeLink recipeLink : ingredientRecipeLinks) {
                     Long ingredientID = recipeLink.getIngredient().getId();

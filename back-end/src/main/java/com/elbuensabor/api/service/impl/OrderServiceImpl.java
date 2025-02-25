@@ -123,8 +123,11 @@ public class OrderServiceImpl extends GenericServiceImpl<Order, OrderDTO, Long> 
 
 
             // se verifica que la cantidad pedida se corresponda a la cantidad de stock actual y se reduce si es posible
+            System.out.println(stockService.verifAndDiscountOrAddStock(dto.getOrderDetails(), 'R'));
             if (stockService.verifAndDiscountOrAddStock(dto.getOrderDetails(), 'R')) {
+                System.out.println("sale de la verificacion de stock");
                 Order savedOrder = orderRepository.save(order);
+                System.out.println("paso el guardar la orden");
 
                 savedOrder.setOrderDetails(orderDetailService.saveOrderDetails(orderDetails, savedOrder));
                 dto = orderMapper.toDTO(savedOrder);
