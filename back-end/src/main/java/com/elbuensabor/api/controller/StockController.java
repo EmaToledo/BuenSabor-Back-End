@@ -59,5 +59,14 @@ public class StockController extends GenericControllerImpl<Stock, StockDTO> {
         }
     }
 
+    @PostMapping("/bulkTransactional/{id}/{type}/{value}")
+    public ResponseEntity<?> bulkTransactional(@PathVariable Long id, @PathVariable char type, @PathVariable Long value) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(service.bulkTransactionalChangeStock(id, type, value));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_MESSAGE);
+        }
+    }
+
 
 }

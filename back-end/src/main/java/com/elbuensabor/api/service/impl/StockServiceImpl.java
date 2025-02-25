@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> implements StockService {
@@ -110,6 +107,28 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
     }
 
+    public boolean bulkTransactionalChangeStock(Long categoryID, char reduceOrAddType, Long value) {
+        boolean allVerif = false;
+        List<Stock> stockList = iStockRepository.findStockByIngredientCategory(categoryID);
+        stockList.addAll(iStockRepository.findStockByProductCategory(categoryID));
+
+        for (Stock actualStock : stockList) {
+            Optional<Stock> stock = iStockRepository.findById(actualStock.getId());
+
+            if (reduceOrAddType == STOCK_REDUCE_TYPE) {
+                actualStock.setActualStock(actualStock.getActualStock() - value);
+                System.out.println("se quito al stock id: " + actualStock.getId() + " - " + value);
+                allVerif = true;
+            } else if (reduceOrAddType == STOCK_ADD_TYPE) {
+                actualStock.setActualStock(actualStock.getActualStock() + value);
+                System.out.println("se agrego al stock id: " + actualStock.getId() + " + " + value);
+                allVerif = true;
+            }
+            iStockRepository.save(actualStock);
+        }
+        return allVerif;
+    }
+
     // verifica si es posible la orden segun el stock actual y si es posible lo reduce
     public boolean verifAndDiscountOrAddStock(List<OrderDetailDTO> orderDetailsDtos, char reduceOrAddType) throws Exception {
 
@@ -134,6 +153,19 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
             throw new Exception("Ha ocurrido un error");
         }
         return true;
+    }
+
+    public Map<Long, Long> setMapForBulkTransactionall(List<Stock> stockList, Long value) {
+        Map<Long, Long> resultStockList = new HashMap<>();
+
+        for (Stock individualStock : stockList) {
+            Long stockID = individualStock.getId();
+            // se obtiene la cantidad del recipe link y se multiplica por la cantidad de productos manufacturados pedidos
+            Long quantity = value;
+            resultStockList.put(stockID, quantity);
+        }
+
+        return resultStockList;
     }
 
     // settea los keys y values del map de manufacturados con sus ids de ingrediente y sus cantidades
