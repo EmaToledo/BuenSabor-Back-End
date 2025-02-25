@@ -350,6 +350,7 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
 
                 if (reduceOrAddType == STOCK_REDUCE_TYPE) {
                     stock.setActualStock(stock.getActualStock() - totalQuantity);
+                    System.out.println("llega hasta aca y la cuenta des tock es: " + stock.getActualStock() + "-" + totalQuantity);
                 } else if (reduceOrAddType == STOCK_ADD_TYPE) {
                     stock.setActualStock(stock.getActualStock() + totalQuantity);
                 }

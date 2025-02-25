@@ -89,7 +89,7 @@ public class MultipleEntitiesServiceImpl implements MultipleEntitiesService {
             if (dto.getPaymentType().equals("mp")) {
                 return paymentMarketService.savePreferenceID(dto);
             } else {
-                billService.sendBillByMail(dto.getId());
+                //billService.sendBillByMail(dto.getId());
                 return null;
             }
         } catch (Exception e) {
