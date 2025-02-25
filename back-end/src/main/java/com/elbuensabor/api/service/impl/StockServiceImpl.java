@@ -111,12 +111,11 @@ public class StockServiceImpl extends GenericServiceImpl<Stock, StockDTO, Long> 
         boolean allVerif = false;
 
         List<Stock> stockList = new ArrayList<>();
-        if (categoryID != null) {
+        if (categoryID != 0) {
             stockList = iStockRepository.findStockByIngredientCategory(categoryID);
             stockList.addAll(iStockRepository.findStockByProductCategory(categoryID));
         } else {
-            stockList = iStockRepository.findStockByIngredientCategoryAll();
-            stockList.addAll(iStockRepository.findStockByProductCategoryAll());
+            stockList = iStockRepository.findAll();
         }
 
         for (Stock actualStock : stockList) {
