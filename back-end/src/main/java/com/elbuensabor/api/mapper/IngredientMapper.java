@@ -16,6 +16,7 @@ public interface IngredientMapper extends GenericMapper<Ingredient, IngredientDT
 
     // Convierte un objeto Ingredient en un objeto IngredientDTO
     @Mapping(source = "ingredientCategory.id", target = "ingredientCategoryID")
+    @Mapping(source = "ingredientCategory.denomination", target = "categoryDenomination")
     IngredientDTO toDTO(Ingredient ingredient);
 
     // Convierte un objeto IngredientDTO en un objeto Ingredient

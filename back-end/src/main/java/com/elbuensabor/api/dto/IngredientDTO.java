@@ -11,5 +11,6 @@ public class IngredientDTO extends GenericDTO {
     private String unit;
     private Boolean availability;
     private Long ingredientCategoryID;
+    private String categoryDenomination;
 
 }

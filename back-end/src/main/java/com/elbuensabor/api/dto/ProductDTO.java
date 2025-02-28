@@ -12,5 +12,6 @@ public class ProductDTO extends GenericDTO {
     private Boolean availability;
     private Long productCategoryID;
     private PriceDTO price;
+    private String categoryDenomination;
 
 }

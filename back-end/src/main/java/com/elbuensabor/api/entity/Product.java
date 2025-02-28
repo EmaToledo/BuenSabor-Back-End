@@ -30,5 +30,8 @@ public class Product extends GenericEntity {
     @JsonBackReference
     private Category productCategory;
 
+    @Column(name = "categoryDenomination")
+    private String categoryDenomination;
+
 
 }

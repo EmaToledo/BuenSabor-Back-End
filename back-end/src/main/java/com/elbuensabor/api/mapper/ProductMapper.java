@@ -17,6 +17,7 @@ public interface ProductMapper extends GenericMapper<Product, ProductDTO> {
     // Convierte un objeto Product en un objeto ProductDTO
     @Mapping(source = "productCategory.id", target = "productCategoryID")
     @Mapping(target = "price", ignore = true)
+    @Mapping(source = "productCategory.denomination", target = "categoryDenomination")
     ProductDTO toDTO(Product product);
 
     // Convierte un objeto ProductDTO en un objeto Product
